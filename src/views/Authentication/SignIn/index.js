@@ -2,7 +2,7 @@ import InputBox from "../../../components/InputBox";
 import React, { useRef, useState } from "react";
 import "./style.css";
 import { useNavigate } from "react-router-dom";
-import { signInRequest } from "../../../apis";
+import { signInRequest, SNS_SIGN_IN_URL } from "../../../apis";
 import ResponseCode from "../../../common/responseCode";
 import { useCookies } from "react-cookie";
 
@@ -47,7 +47,10 @@ export default function SignUp() {
 
   /* PW 관련 끝 */
 
-  const onSnsSignInButtonClickHandler = () => {};
+  /* OAuth 관련 이벤트 */
+  const onSnsSignInButtonClickHandler = (type = "kakao" | "naver") => {
+    window.location.href = SNS_SIGN_IN_URL(type);
+  };
 
   /* 로그인 관련 시작 */
   const onSignInButtonClickHandler = () => {

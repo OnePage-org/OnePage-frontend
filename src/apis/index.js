@@ -22,6 +22,10 @@ const SIGN_IN_URL = () => `${API_DOMAIN}/auth/signIn`;
 const MAIL_SEND_URL = () => `${API_DOMAIN}/mail/sendMail`;
 const CHECK_CERTIFICATION_URL = () => `${API_DOMAIN}/mail/checkCertification`;
 
+/* OAuth2.0 */
+export const SNS_SIGN_IN_URL = (type = "kakao" | "namver") =>
+  `${API_DOMAIN}/auth/oauth2/${type}`;
+
 export const idCheckRequest = async (requestBody) => {
   const result = await axios
     .post(ID_CHECK_URL(), requestBody)
