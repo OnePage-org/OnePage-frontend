@@ -2,14 +2,20 @@ import InputBox from "../../../components/InputBox";
 import React, { useRef, useState } from "react";
 import "./style.css";
 import { useNavigate } from "react-router-dom";
+import { signInRequest } from "../../../apis";
+import ResponseCode from "../../../common/responseCode";
+import { useCookies } from "react-cookie";
 
 export default function SignUp() {
   const idRef = useRef(null);
   const passwordRef = useRef(null);
 
+  const [cookie, setCookie] = useCookies();
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
+  const [isPasswordError, setPasswordError] = useState(false);
   const [passwordMessage, setPasswordMessage] = useState("");
 
   const navigate = useNavigate();
@@ -43,11 +49,37 @@ export default function SignUp() {
 
   const onSnsSignInButtonClickHandler = () => {};
 
-  /* 로그인 버튼 이벤트 시작 */
+  /* 로그인 관련 시작 */
   const onSignInButtonClickHandler = () => {
-    navigate("/signIn");
+    if (!username || !password) return;
+
+    const requestBody = { username, password };
+    signInRequest(requestBody).then(signInResponse);
   };
-  /* 로그인 버튼 이벤트 끝 */
+
+  const signInResponse = (responseBody) => {
+    if (!responseBody) return;
+    const { code } = responseBody;
+    console.log(code);
+
+    if (code === ResponseCode.SIGN_IN_FAIL) {
+      setPasswordError(true);
+      setPasswordMessage("로그인 정보가 일치하지 않습니다.");
+    }
+
+    if (code === ResponseCode.VALIDATION_FAIL) alert("모든 값을 입력해주세요.");
+    if (code === ResponseCode.DATABASE_ERROR) alert("데이터베이스 오류입니다.");
+    if (code !== ResponseCode.SUCCESS) return;
+
+    const { token, expirationTime } = responseBody;
+    const now = new Date().getTime();
+    const expires = new Date(now + expirationTime * 1000);
+
+    setCookie("accessToken", token, { expires, path: "/" });
+
+    navigate("/");
+  };
+  /* 로그인 관련 끝 */
 
   /* 회원가입 버튼 이벤트 시작 */
   const onSignUpButtonClickHandler = () => {
@@ -80,7 +112,7 @@ export default function SignUp() {
                 value={password}
                 onChange={onPasswordChangeHandler}
                 message={passwordMessage}
-                isErrorMessage
+                isErrorMessage={isPasswordError}
                 onKeyDown={onPasswordKeyDownHandler}
               />
             </div>
