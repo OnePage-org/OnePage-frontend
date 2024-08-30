@@ -2,7 +2,7 @@ import InputBox from "../../../components/InputBox";
 import React, { useRef, useState } from "react";
 import "./style.css";
 import { useNavigate } from "react-router-dom";
-import { idCheckRequest } from "../../../apis";
+import { idCheckRequest, sendMailRequest } from "../../../apis";
 
 import ResponseCode from "../../../common/responseCode";
 
@@ -69,6 +69,7 @@ export default function SignUp() {
     if (code === ResponseCode.VALIDATION_FAIL) {
       alert("모든 값을 입력하세요.");
     }
+    if (code === ResponseCode.DATABASE_ERROR) alert("데이터베이스 오류입니다.");
     if (code === ResponseCode.DUPLICATE_ID) {
       setIdError(true);
       setIdMessage("이미 사용중인 아이디 입니다.");
@@ -133,8 +134,11 @@ export default function SignUp() {
     setCertificationNumberMessage("");
   };
 
+  /* 이메일 인증 버튼 */
   const onEmailButtonClickHandler = () => {
+    /* 아이디와 이메일을 입력하지 않은채 이메일 인증을 누르면 실행안되도록 하기 위함 */
     if (!username || !email) return;
+    /* 올바른 이메일 형식인지 패턴 확인 */
     const checkedEmail = emailPattern.test(email);
     if (!checkedEmail) {
       setEmailError(true);
@@ -142,19 +146,40 @@ export default function SignUp() {
       return;
     }
 
+    const requestBody = { username, email };
+    sendMailRequest(requestBody).then(sendMailResponse);
+
     setEmailError(false);
     setEmailMessage("이메일 전송중...");
   };
 
+  const sendMailResponse = (responseBody) => {
+    if (!responseBody) return;
+    const { code } = responseBody;
+
+    if (code === ResponseCode.VALIDATION_FAIL) {
+      alert("아이디와 이메일을 모두 입력하세요. ");
+    }
+    if (code === ResponseCode.DATABASE_ERROR) alert("데이터베이스 오류입니다.");
+    if (code !== ResponseCode.SUCCESS) return;
+
+    setEmailError(false);
+    setEmailMessage("인증번호가 전송되었습니다.");
+    setEmailCheck(true);
+  };
+
+  /* 인증 확인 버튼 */
   const onCertificationNumberButtonClickHandler = () => {
     if (!username || !email || !certification) return;
   };
 
+  /* 이메일 InputBox에서 엔터치면 이메일 인증 버튼 실행 */
   const onEmailKeyDownHandler = (event) => {
     if (event.key !== "Enter") return;
     onEmailButtonClickHandler();
   };
 
+  /* 인증번호 InputBox에서 엔터치면 인증 확인 버튼 실행 */
   const onCertificationKeyDownHandler = (event) => {
     if (event.key !== "Enter") return;
     onCertificationNumberButtonClickHandler();
