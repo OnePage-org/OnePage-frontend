@@ -1,0 +1,8 @@
+#sign-up-wrapper {
+  width: 100vw;
+  min-width: 1440px;
+  height: 10vh;
+  min-height: 1024px;
+
+  display: flex;
+}
