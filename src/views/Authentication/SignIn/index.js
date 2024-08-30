@@ -40,36 +40,15 @@ export default function SignIn() {
       alert("아이디와 비밀번호 모두 입력하세요.");
       return;
     }
-
-    const requestBody = { id, password };
   };
 
   const onSnsSignInButtonClickHandler = (type) => {};
 
   const onSignUpButtonClickHandler = () => {
-    navigate("/auth/sign-up");
+    navigate("/signUp");
   };
 
   const navigate = useNavigate();
-
-  const signInResponse = (responseBody) => {
-    if (!responseBody) return;
-
-    const { code } = responseBody;
-    if (code === "VALIDATION_FAIL") {
-      alert("아이디와 비밀번호를 입력하세요.");
-    }
-    if (code === "SIGN_IN_FAIL") {
-      setMessage("로그인 정보가 일치하지 않습니다.");
-    }
-    if (code !== "SUCCESS") return;
-
-    const { token, expirationTime } = responseBody;
-
-    const now = new Date().getTime();
-    const expires = new Date(now + expirationTime * 1000);
-    navigate("/");
-  };
 
   return (
     <div id="sign-in-wrapper">
