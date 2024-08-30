@@ -3,25 +3,21 @@ import React, { useRef, useState } from "react";
 import "./style.css";
 import { useNavigate } from "react-router-dom";
 
-export default function SignIn() {
+export default function SignUp() {
   const idRef = useRef(null);
   const passwordRef = useRef(null);
 
-  const [id, setId] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const [message, setMessage] = useState("");
+  const [passwordMessage, setPasswordMessage] = useState("");
 
+  const navigate = useNavigate();
+
+  /* ID 관련 시작 */
   const onIdChangeHandler = (event) => {
     const { value } = event.target;
-    setId(value);
-    setMessage("");
-  };
-
-  const onPasswordChangeHandler = (event) => {
-    const { value } = event.target;
-    setPassword(value);
-    setMessage("");
+    setUsername(value);
   };
 
   const onIdKeyDownHandler = (event) => {
@@ -29,26 +25,35 @@ export default function SignIn() {
     if (!passwordRef.current) return;
     passwordRef.current.focus();
   };
+  /* ID 관련 끝 */
+
+  /* PW 관련 시작 */
+  const onPasswordChangeHandler = (event) => {
+    const { value } = event.target;
+    setPassword(value);
+    setPasswordMessage("");
+  };
 
   const onPasswordKeyDownHandler = (event) => {
     if (event.key !== "Enter") return;
     onSignInButtonClickHandler();
   };
 
+  /* PW 관련 끝 */
+
+  const onSnsSignInButtonClickHandler = () => {};
+
+  /* 로그인 버튼 이벤트 시작 */
   const onSignInButtonClickHandler = () => {
-    if (!id || !password) {
-      alert("아이디와 비밀번호 모두 입력하세요.");
-      return;
-    }
+    navigate("/signIn");
   };
+  /* 로그인 버튼 이벤트 끝 */
 
-  const onSnsSignInButtonClickHandler = (type) => {};
-
+  /* 회원가입 버튼 이벤트 시작 */
   const onSignUpButtonClickHandler = () => {
     navigate("/signUp");
   };
-
-  const navigate = useNavigate();
+  /* 회원가입 버튼 이벤트 끝 */
 
   return (
     <div id="sign-in-wrapper">
@@ -63,7 +68,7 @@ export default function SignIn() {
                 title="아이디"
                 placeholder="아이디를 입력해주세요"
                 type="text"
-                value={id}
+                value={username}
                 onChange={onIdChangeHandler}
                 onKeyDown={onIdKeyDownHandler}
               />
@@ -74,7 +79,7 @@ export default function SignIn() {
                 type="password"
                 value={password}
                 onChange={onPasswordChangeHandler}
-                message={message}
+                message={passwordMessage}
                 isErrorMessage
                 onKeyDown={onPasswordKeyDownHandler}
               />
