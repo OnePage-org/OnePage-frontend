@@ -14,8 +14,10 @@ const errorHandler = (error) => {
   return responseBody;
 };
 
+/* API Endpoint. */
 const ID_CHECK_URL = () => `${API_DOMAIN}/auth/idCheck`;
 const MAIL_SEND_URL = () => `${API_DOMAIN}/mail/sendMail`;
+const CHECK_CERTIFICATION_URL = () => `${API_DOMAIN}/mail/checkCertification`;
 
 export const idCheckRequest = async (requestBody) => {
   const result = await axios
@@ -28,6 +30,14 @@ export const idCheckRequest = async (requestBody) => {
 export const sendMailRequest = async (requestBody) => {
   const result = await axios
     .post(MAIL_SEND_URL(), requestBody)
+    .then(responseHandler)
+    .catch(errorHandler);
+  return result;
+};
+
+export const checkCertificationRequest = async (requestBody) => {
+  const result = await axios
+    .post(CHECK_CERTIFICATION_URL(), requestBody)
     .then(responseHandler)
     .catch(errorHandler);
   return result;

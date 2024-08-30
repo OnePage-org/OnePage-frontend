@@ -2,7 +2,11 @@ import InputBox from "../../../components/InputBox";
 import React, { useRef, useState } from "react";
 import "./style.css";
 import { useNavigate } from "react-router-dom";
-import { idCheckRequest, sendMailRequest } from "../../../apis";
+import {
+  checkCertificationRequest,
+  idCheckRequest,
+  sendMailRequest,
+} from "../../../apis";
 
 import ResponseCode from "../../../common/responseCode";
 
@@ -122,16 +126,11 @@ export default function SignUp() {
   const onSnsSignInButtonClickHandler = () => {};
 
   /* Mail 관련 시작 */
+  /* 이메일 전송 관련 */
   const onEmailChangeHandler = (event) => {
     const { value } = event.target;
     setEmail(value);
     setEmailMessage("");
-  };
-
-  const onCertificationNumberChangeHandler = (event) => {
-    const { value } = event.target;
-    setCertificationNumber(value);
-    setCertificationNumberMessage("");
   };
 
   /* 이메일 인증 버튼 */
@@ -168,9 +167,35 @@ export default function SignUp() {
     setEmailCheck(true);
   };
 
+  /* 인증 확인 관련 */
+  const onCertificationNumberChangeHandler = (event) => {
+    const { value } = event.target;
+    setCertificationNumber(value);
+    setCertificationNumberMessage("");
+  };
+
   /* 인증 확인 버튼 */
   const onCertificationNumberButtonClickHandler = () => {
     if (!username || !email || !certification) return;
+    const requestBody = { username, email, certification };
+    checkCertificationRequest(requestBody).then(checkCertificationResponse);
+  };
+
+  const checkCertificationResponse = (responseBody) => {
+    if (!responseBody) return;
+    const { code } = responseBody;
+
+    if (code === ResponseCode.CERTIFICATION_FAIL) {
+      setCertificationNumberError(true);
+      setCertificationNumberMessage("인증번호가 일치하지 않습니다.");
+      setCertificationCheck(false);
+    }
+
+    if (code !== ResponseCode.SUCCESS) return;
+
+    setCertificationNumberError(false);
+    setCertificationNumberMessage("인증번호가 확인되었습니다.");
+    setCertificationCheck(true);
   };
 
   /* 이메일 InputBox에서 엔터치면 이메일 인증 버튼 실행 */
