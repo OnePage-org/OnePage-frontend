@@ -33,32 +33,21 @@ export default function SignUp() {
   const [certificationNumberMessage, setCertificationNumberMessage] =
     useState("");
 
-  const onPasswordChangeHandler = (event) => {
-    const { value } = event.target;
-    setPassword(value);
-    setPasswordMessage("");
-  };
+  const [isIdCheck, setIdCheck] = useState(false);
+  const [isEmailCheck, setEmailCheck] = useState(false);
+  const [isCertificationCheck, setCertificationCheck] = useState(false);
 
-  const onPasswordCheckChangeHandler = (event) => {
-    const { value } = event.target;
-    setPasswordCheck(value);
-    setPasswordCheckMessage("");
-  };
+  const signUpButtonClass =
+    username && password && passwordCheck && email && certification
+      ? "primary-button-large"
+      : "disable-button-large";
 
-  const onEmailChangeHandler = (event) => {
-    const { value } = event.target;
-    setEmail(value);
-    setEmailMessage("");
-  };
+  const emailPattern = /^[a-zA-Z0-9]*@([-.]?[a-zA-Z0-9])*\.[a-zA-Z]{2,4}$/;
+  const passwordPattern = /^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]{8,13}$/;
 
-  const onCertificationNumberChangeHandler = (event) => {
-    const { value } = event.target;
-    setCertificationNumber(value);
-    setCertificationNumberMessage("");
-  };
+  const navigate = useNavigate();
 
-  /* ID 관련 */
-  /* IdChangeHandler */
+  /* ID 관련 시작 */
   const onIdChangeHandler = (event) => {
     const { value } = event.target;
     setUsername(value);
@@ -93,11 +82,56 @@ export default function SignUp() {
     setIdCheck(true);
   };
 
+  const onIdKeyDownHandler = (event) => {
+    if (event.key !== "Enter") return;
+    onIdButtonClickHandler();
+  };
+  /* ID 관련 끝 */
+
+  /* PW 관련 시작 */
+  const onPasswordChangeHandler = (event) => {
+    const { value } = event.target;
+    setPassword(value);
+    setPasswordMessage("");
+  };
+
+  const onPasswordCheckChangeHandler = (event) => {
+    const { value } = event.target;
+    setPasswordCheck(value);
+    setPasswordCheckMessage("");
+  };
+
   const onPasswordButtonClickHandler = () => {};
 
   const onPasswordCheckButtonClickHandler = () => {};
 
+  const onPasswordKeyDownHandler = (event) => {
+    if (event.key !== "Enter") return;
+    if (!passwordCheckRef.current) return;
+    passwordCheckRef.current.focus();
+  };
+
+  const onPasswordCheckKeyDownHandler = (event) => {
+    if (event.key !== "Enter") return;
+    if (!emailRef.current) return;
+    emailRef.current.focus();
+  };
+  /* PW 관련 끝 */
+
   const onSnsSignInButtonClickHandler = () => {};
+
+  /* Mail 관련 시작 */
+  const onEmailChangeHandler = (event) => {
+    const { value } = event.target;
+    setEmail(value);
+    setEmailMessage("");
+  };
+
+  const onCertificationNumberChangeHandler = (event) => {
+    const { value } = event.target;
+    setCertificationNumber(value);
+    setCertificationNumberMessage("");
+  };
 
   const onEmailButtonClickHandler = () => {
     if (!username || !email) return;
@@ -116,23 +150,6 @@ export default function SignUp() {
     if (!username || !email || !certification) return;
   };
 
-  const onIdKeyDownHandler = (event) => {
-    if (event.key !== "Enter") return;
-    onIdButtonClickHandler();
-  };
-
-  const onPasswordKeyDownHandler = (event) => {
-    if (event.key !== "Enter") return;
-    if (!passwordCheckRef.current) return;
-    passwordCheckRef.current.focus();
-  };
-
-  const onPasswordCheckKeyDownHandler = (event) => {
-    if (event.key !== "Enter") return;
-    if (!emailRef.current) return;
-    emailRef.current.focus();
-  };
-
   const onEmailKeyDownHandler = (event) => {
     if (event.key !== "Enter") return;
     onEmailButtonClickHandler();
@@ -142,7 +159,9 @@ export default function SignUp() {
     if (event.key !== "Enter") return;
     onCertificationNumberButtonClickHandler();
   };
+  /* Mail 관련 끝 */
 
+  /* 회원가입 관련 시작 */
   const onSignUpButtonClickHandler = () => {
     if (!username || !email || !certification || !password || !passwordCheck)
       return;
@@ -169,30 +188,19 @@ export default function SignUp() {
     }
   };
 
-  const onSignInButtonClickHandler = () => {
-    navigate("/signIn");
-  };
-
-  const [isIdCheck, setIdCheck] = useState(false);
-  const [isEmailCheck, setEmailCheck] = useState(false);
-  const [isCertificationCheck, setCertificationCheck] = useState(false);
-
-  const signUpButtonClass =
-    username && password && passwordCheck && email && certification
-      ? "primary-button-large"
-      : "disable-button-large";
-
-  const emailPattern = /^[a-zA-Z0-9]*@([-.]?[a-zA-Z0-9])*\.[a-zA-Z]{2,4}$/;
-  const passwordPattern = /^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]{8,13}$/;
-
-  const navigate = useNavigate();
-
   const signUpResponse = (responseBody) => {
     if (!responseBody) return;
     const { code } = responseBody;
 
     navigate("/auth/sign-in");
   };
+  /* 회원가입 관련 끝 */
+
+  /* 로그인 버튼 이벤트 시작 */
+  const onSignInButtonClickHandler = () => {
+    navigate("/signIn");
+  };
+  /* 로그인 버튼 이벤트 끝 */
 
   return (
     <div id="sign-up-wrapper">
