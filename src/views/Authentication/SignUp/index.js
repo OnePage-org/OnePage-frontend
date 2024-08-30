@@ -6,6 +6,7 @@ import {
   checkCertificationRequest,
   idCheckRequest,
   sendMailRequest,
+  signUpRequest,
 } from "../../../apis";
 
 import ResponseCode from "../../../common/responseCode";
@@ -38,7 +39,6 @@ export default function SignUp() {
     useState("");
 
   const [isIdCheck, setIdCheck] = useState(false);
-  const [isEmailCheck, setEmailCheck] = useState(false);
   const [isCertificationCheck, setCertificationCheck] = useState(false);
 
   const signUpButtonClass =
@@ -106,10 +106,6 @@ export default function SignUp() {
     setPasswordCheckMessage("");
   };
 
-  const onPasswordButtonClickHandler = () => {};
-
-  const onPasswordCheckButtonClickHandler = () => {};
-
   const onPasswordKeyDownHandler = (event) => {
     if (event.key !== "Enter") return;
     if (!passwordCheckRef.current) return;
@@ -164,7 +160,6 @@ export default function SignUp() {
 
     setEmailError(false);
     setEmailMessage("인증번호가 전송되었습니다.");
-    setEmailCheck(true);
   };
 
   /* 인증 확인 관련 */
@@ -213,13 +208,16 @@ export default function SignUp() {
 
   /* 회원가입 관련 시작 */
   const onSignUpButtonClickHandler = () => {
+    /* 모든 공간들 중 하나라도 값이 없으면 수행하지 않고 반환 */
     if (!username || !email || !certification || !password || !passwordCheck)
       return;
+    /* 중복 검사 여부 확인 */
     if (!isIdCheck) {
       alert("중복 확인은 필수입니다.");
       return;
     }
 
+    /* 비밀번호 패턴이 일치한지 확인 */
     const checkedPassword = passwordPattern.test(password);
     if (!checkedPassword) {
       setPasswordError(true);
@@ -227,22 +225,35 @@ export default function SignUp() {
       return;
     }
 
+    /* 비밀번호와 비밀번호 확인이 서로 같은지 확인 */
     if (password !== passwordCheck) {
       setPasswordCheckError(true);
       setPasswordCheckMessage("비밀번호가 일치하지 않습니다.");
+      return;
     }
 
+    /* 이메일 인증 여부 확인 */
     if (!isCertificationCheck) {
       alert("이메일 인증은 필수입니다.");
       return;
     }
+
+    /* 회원가입을 위한 모든 전제조건이 완료되면 수행 */
+    const requestBody = { username, password, email, certification };
+    signUpRequest(requestBody).then(signUpResponse);
   };
 
   const signUpResponse = (responseBody) => {
     if (!responseBody) return;
+
     const { code } = responseBody;
 
-    navigate("/auth/sign-in");
+    if (code === ResponseCode.VALIDATION_FAIL) alert("모든 값을 입력해주세요.");
+    if (code === ResponseCode.DATABASE_ERROR) alert("데이터베이스 오류입니다.");
+    if (code !== ResponseCode.SUCCESS) return;
+
+    alert("정상적으로 가입되었습니다!");
+    navigate("/signIn");
   };
   /* 회원가입 관련 끝 */
 
@@ -298,7 +309,6 @@ export default function SignUp() {
                 onChange={onPasswordChangeHandler}
                 isErrorMessage={isPasswordError}
                 message={passwordMessage}
-                onButtonClick={onPasswordButtonClickHandler}
                 onKeyDown={onPasswordKeyDownHandler}
               />
               <InputBox
@@ -310,7 +320,6 @@ export default function SignUp() {
                 onChange={onPasswordCheckChangeHandler}
                 isErrorMessage={isPasswordCheckError}
                 message={passwordCheckMessage}
-                onButtonClick={onPasswordCheckButtonClickHandler}
                 onKeyDown={onPasswordCheckKeyDownHandler}
               />
               <InputBox

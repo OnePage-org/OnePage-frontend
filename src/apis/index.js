@@ -18,6 +18,7 @@ const errorHandler = (error) => {
 const ID_CHECK_URL = () => `${API_DOMAIN}/auth/idCheck`;
 const MAIL_SEND_URL = () => `${API_DOMAIN}/mail/sendMail`;
 const CHECK_CERTIFICATION_URL = () => `${API_DOMAIN}/mail/checkCertification`;
+const SIGN_UP_URL = () => `${API_DOMAIN}/auth/signUp`;
 
 export const idCheckRequest = async (requestBody) => {
   const result = await axios
@@ -38,6 +39,14 @@ export const sendMailRequest = async (requestBody) => {
 export const checkCertificationRequest = async (requestBody) => {
   const result = await axios
     .post(CHECK_CERTIFICATION_URL(), requestBody)
+    .then(responseHandler)
+    .catch(errorHandler);
+  return result;
+};
+
+export const signUpRequest = async (requestBody) => {
+  const result = await axios
+    .post(SIGN_UP_URL(), requestBody)
     .then(responseHandler)
     .catch(errorHandler);
   return result;
