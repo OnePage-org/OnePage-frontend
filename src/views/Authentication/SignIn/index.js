@@ -4,13 +4,11 @@ import "./style.css";
 import { useNavigate } from "react-router-dom";
 import { signInRequest, SNS_SIGN_IN_URL } from "../../../apis";
 import ResponseCode from "../../../common/responseCode";
-import { useCookies } from "react-cookie";
+import { setCookie } from "../../../common/Cookie";
 
 export default function SignUp() {
   const idRef = useRef(null);
   const passwordRef = useRef(null);
-
-  const [cookie, setCookie] = useCookies();
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -74,10 +72,12 @@ export default function SignUp() {
     if (code === ResponseCode.DATABASE_ERROR) alert("데이터베이스 오류입니다.");
     if (code !== ResponseCode.SUCCESS) return;
 
+    /* POST 요청후 백엔드로부터 응답으로 받은 responseBody의 DTO 중 token과 만료시간인 expriationTime을 가져온다. */
     const { token, expirationTime } = responseBody;
     const now = new Date().getTime();
     const expires = new Date(now + expirationTime * 1000);
 
+    /* 첫 번째 매개변수는 쿠키 이름, 두 번째 매개변수는 넣을 값, 그 이후는 추가 옵션 */
     setCookie("accessToken", token, { expires, path: "/" });
 
     navigate("/");
