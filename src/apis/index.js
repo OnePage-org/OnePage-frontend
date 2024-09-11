@@ -1,7 +1,5 @@
 import axios from "axios";
-
-const DOMAIN = "http://localhost:4040";
-const API_DOMAIN = `${DOMAIN}/api/v1`;
+import { API_DOMAIN } from "../common/common";
 
 const responseHandler = (response) => {
   const responseBody = response.data;
@@ -18,6 +16,7 @@ const errorHandler = (error) => {
 const ID_CHECK_URL = () => `${API_DOMAIN}/auth/idCheck`;
 const SIGN_UP_URL = () => `${API_DOMAIN}/auth/signUp`;
 const SIGN_IN_URL = () => `${API_DOMAIN}/auth/signIn`;
+const TOKEN_DECRYPTION = () => `${API_DOMAIN}/auth/tokenDecryption`;
 
 const MAIL_SEND_URL = () => `${API_DOMAIN}/mail/sendMail`;
 const CHECK_CERTIFICATION_URL = () => `${API_DOMAIN}/mail/checkCertification`;
