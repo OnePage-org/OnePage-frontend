@@ -73,14 +73,16 @@ export default function SignUp() {
     if (code !== ResponseCode.SUCCESS) return;
 
     /* POST 요청후 백엔드로부터 응답으로 받은 responseBody의 DTO 중 token과 만료시간인 expriationTime을 가져온다. */
-    const { token, expirationTime } = responseBody;
+    const { token, expirationTime, role } = responseBody;
     const now = new Date().getTime();
     const expires = new Date(now + expirationTime * 1000);
-
     /* 첫 번째 매개변수는 쿠키 이름, 두 번째 매개변수는 넣을 값, 그 이후는 추가 옵션 */
     setCookie("accessToken", token, { expires, path: "/" });
 
-    navigate("/");
+    /* 로그인이 성공했을 경우 responseBody로부터 받은 Role 정보로부터 일반 유저인지 관리자인지 확인한 뒤,
+    일반 유저이면 메인페이지, 관리자면 관리자 페이지로 보내준다. */
+    if (role === "ROLE_USER") navigate("/");
+    if (role === "ROLE_ADMIN") navigate("/admin");
   };
   /* 로그인 관련 끝 */
 
