@@ -63,7 +63,7 @@ const ChatRoom = ({ username }) => {
 
   // 메시지 전송
   const sendMessage = () => {
-    if (stompClient.current && inputMessage) {
+    if (stompClient.current && inputMessage && inputMessage.trim().length > 0) {
       const body = {
         writer: username,
         message: inputMessage,
