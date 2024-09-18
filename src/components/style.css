@@ -1,4 +1,4 @@
-/* 채팅 css */
+/* 채팅 css start */
 @font-face {
   font-family: 'HakgyoansimDunggeunmisoTTF-B';
   src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/2408-5@1.0/HakgyoansimDunggeunmisoTTF-B.woff2') format('woff2');
@@ -158,3 +158,4 @@
 .message-length {
   font-family: 'HakgyoansimDunggeunmisoTTF-B';
 } 
+/* 채팅 css end */

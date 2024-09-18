@@ -3,10 +3,9 @@ import SockJS from 'sockjs-client';
 import { Stomp } from "@stomp/stompjs";
 import { TbMessageChatbot } from "react-icons/tb";
 import { RiSendPlane2Fill } from "react-icons/ri";
-import { getCookie } from "../common/Cookie";
 import { DOMAIN } from "../common/common";
 
-import './ChatRoomStyles.css';
+import './style.css';
 
 const ChatRoom = ({ username }) => {
   const stompClient = useRef(null);
