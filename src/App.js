@@ -5,6 +5,7 @@ import SignUp from "./views/Authentication/SignUp";
 import SignIn from "./views/Authentication/SignIn";
 import OAuth from "./views/Authentication/OAuth";
 import CoupongMain from "./views/Coupong";
+import AdminMain from "./views/Admin";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/signUp" element={<SignUp />}></Route>
         <Route path="/signIn" element={<SignIn />}></Route>
         <Route path="/" element={<CoupongMain />}></Route>
+        <Route path="/admin" element={<AdminMain />}></Route>
       </Routes>
     </BrowserRouter>
   );
