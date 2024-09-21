@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
 import SockJS from 'sockjs-client';
 import { Stomp } from "@stomp/stompjs";
-import { TbMessageChatbot } from "react-icons/tb";
+import { RiRobot2Line } from "react-icons/ri";
+import { TbMessageDots } from "react-icons/tb";
 import { RiSendPlane2Fill } from "react-icons/ri";
 import { DOMAIN } from "../common/common";
+import axios from "axios";
 
 import './style.css';
 
@@ -17,8 +19,60 @@ const ChatRoom = ({ username }) => {
   const messagesEndRef = useRef(null);
   const max_length = 200;
 
+  // 메시지 전송
+  const sendMessage = () => {
+    const body = {
+      writer: username,
+      message: inputMessage,
+      createdDate: ""
+    };
+
+    if (inputMessage === null || inputMessage.trim().length === 0) {
+      /* 에러 */
+      axios.post(`${DOMAIN}/api/v1/filtering`, {
+        status: "error",
+        data: body,
+        message: "no data chatMessage"
+      })
+        .then(response => {
+          console.log("Response:", response.data);
+        })
+        .catch(error => {
+          console.error("Error:", error);
+        });
+    }
+
+    if (stompClient.current && inputMessage && inputMessage.trim().length > 0) {
+      stompClient.current.send("/pub/messages", {}, JSON.stringify(body));
+
+      /* 성공 */
+      axios.post(`${DOMAIN}/api/v1/filtering`, {
+        status: "success",
+        data: body,
+        message: null
+      })
+        .then(response => {
+          console.log("Response:", response.data);
+        })
+        .catch(error => {
+          console.error("Error:", error);
+        });
+
+      setInputMessage('');
+      setInputCnt(0);
+    }
+  };
+
   const activeSend = (e) => {
-    if (e.key === 'Enter' && e.nativeEvent.isComposing === false) sendMessage(); 
+    if (e.key === 'Enter' && e.nativeEvent.isComposing === false && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+
+    if (e.key === 'Enter' && e.shiftKey) {
+      e.preventDefault();
+      setInputMessage(inputMessage + '\n');
+    }
   };
 
   const handleInputChange = (e) => {
@@ -60,22 +114,8 @@ const ChatRoom = ({ username }) => {
     }
   };
 
-  // 메시지 전송
-  const sendMessage = () => {
-    if (stompClient.current && inputMessage && inputMessage.trim().length > 0) {
-      const body = {
-        writer: username,
-        message: inputMessage,
-        createdDate: ""
-      };
-      stompClient.current.send("/pub/messages", {}, JSON.stringify(body)); 
-      setInputMessage('');
-      setInputCnt(0);
-    }
-  };
-
   useEffect(() => {
-    if (!username) return; 
+    if (!username) return;
 
     const socket = new SockJS(SOCKET_DOMAIN);
     stompClient.current = Stomp.over(socket);
@@ -90,7 +130,7 @@ const ChatRoom = ({ username }) => {
       });
 
       handleEnter();
-      
+
       stompClient.current.subscribe("/sub/users", (messageCount) => {
         const count = parseInt(messageCount.body);
         setUserCnt(count);
@@ -102,30 +142,28 @@ const ChatRoom = ({ username }) => {
     window.addEventListener('beforeunload', handleExit);
 
     return () => {
-      window.removeEventListener('beforeunload', handleExit); 
+      window.removeEventListener('beforeunload', handleExit);
       disconnect();
     };
   }, [username]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); 
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   return (
     <div>
       <div className='chat-header'>
-        <h1>Coupong Chat <TbMessageChatbot /></h1>
-        <div className='user-count'> {userCnt}명의 참여자 </div>
       </div>
 
       <div className='chat-container'>
         <div className='chat-messages'>
-          {messages.map((item, index)=> (
+          {messages.map((item, index) => (
             <div
               key={index}
               className={`chat-message ${item.writer === username ? 'my-message' :
-                                         item.writer === '알림' ? 'notify-message' : 'other-message'}`}>
-            
+                item.writer === '알림' ? 'notify-message' : 'other-message'}`}>
+
               <div className='message-content'>
                 <span className='message-name'>{item.writer}</span>
                 <span className='message-text'>{item.message}</span>
@@ -135,21 +173,28 @@ const ChatRoom = ({ username }) => {
           ))}
           <div ref={messagesEndRef} />
         </div>
-        <div className='chat-input-container'>
-          <div className='chat-input'>
-            <input 
-              maxLength={max_length}
-              type='text'
-              value={inputMessage}
-              onChange={handleInputChange}
-              onKeyDown={(e) => activeSend(e)}
-            />
-            <button onClick={sendMessage}> <RiSendPlane2Fill /> </button>
-          </div>
-          <div className='chat-input-footer'>
-            <span className='message-length'>글자 수 : {inputCnt}/{max_length}</span>
-          </div>
+
+        <div className='info'>
+          <span className='user-count'> {userCnt}명의 참여자 </span>
+          <span className='message-length'>글자 수 : {inputCnt}/{max_length}</span>
         </div>
+        <div className="chat-input-wrapper">
+          <textarea
+            placeholder='채팅을 입력하세요.'
+            className="chat-input-container"
+            maxLength={max_length}
+            value={inputMessage}
+            onChange={handleInputChange}
+            onKeyDown={(e) => activeSend(e)}
+          />
+          <button
+            className="chat-input-button"
+            onClick={sendMessage}
+          >
+            <RiSendPlane2Fill />
+          </button>
+        </div>
+
       </div>
     </div>
   );
