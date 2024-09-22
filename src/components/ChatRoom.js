@@ -15,9 +15,17 @@ const ChatRoom = ({ username }) => {
   const [inputMessage, setInputMessage] = useState('');
   const [inputCnt, setInputCnt] = useState(0);
   const [userCnt, setUserCnt] = useState(0);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const SOCKET_DOMAIN = `${DOMAIN}/chat`;
   const messagesEndRef = useRef(null);
   const max_length = 200;
+
+  // 모달 닫기 함수
+  const closeModal = () => {
+    setModalVisible(false);
+    setErrorMessage('');
+  };
 
   // 메시지 전송
   const sendMessage = () => {
@@ -28,63 +36,38 @@ const ChatRoom = ({ username }) => {
     };
 
     if (inputMessage === null || inputMessage.trim().length === 0) {
-      /* 에러 */
-      axios.post(`${DOMAIN}/api/v1/filtering`, {
-        status: "error",
-        data: body,
-        message: "no data chatMessage"
-      })
-        .then(response => {
-          console.log("Response:", response.data);
-        })
-        .catch(error => {
-          console.error("Error:", error);
-        });
-    }
-
-    if (inputMessage.length > 200) {
-      /* 에러 */
-      axios.post(`${DOMAIN}/api/v1/filtering`, {
-        status: "error",
-        data: body,
-        message: "too long chatMessage data"
-      })
-        .then(response => {
-          console.log("Response:", response.data);
-        })
-        .catch(error => {
-          console.error("Error:", error);
-        });
+      setErrorMessage("메시지를 입력해주세요.");
+      setModalVisible(true);
+      return;
     }
 
     if (stompClient.current && inputMessage && inputMessage.trim().length > 0) {
-      stompClient.current.send("/pub/messages", {}, JSON.stringify(body));
-
-      /* 성공 */
       axios.post(`${DOMAIN}/api/v1/filtering`, {
-        status: "success",
-        data: body,
-        message: null
+        message: body.message
       })
         .then(response => {
-          console.log("Response:", response.data);
+          if (response.data === "fail") { /* 금칙어가 포함된 상태 */
+            setErrorMessage("금칙어가 포함되어 있습니다.");
+            setModalVisible(true);
+            return;
+          }
+          stompClient.current.send("/pub/messages", {}, JSON.stringify(body));
+          setInputMessage('');
+          setInputCnt(0);
         })
         .catch(error => {
           console.error("Error:", error);
         });
-
-      setInputMessage('');
-      setInputCnt(0);
     }
   };
 
-  const activeSend = (e) => {
+  const activeSend = (e) => { // Enter로 메시지 전송
     if (e.key === 'Enter' && e.nativeEvent.isComposing === false && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
 
-    if (e.key === 'Enter' && e.shiftKey) {
+    if (e.key === 'Enter' && e.shiftKey) { // 줄바꿈 가능하도록 
       e.preventDefault();
       setInputMessage(inputMessage + '\n');
     }
@@ -166,11 +149,24 @@ const ChatRoom = ({ username }) => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  useEffect(() => { // 모달창 ESC로 닫기
+    const handleKeyDown = (e) => {
+      if (modalVisible && (e.key === 'Escape')) {
+        closeModal();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [modalVisible]);
+
   return (
     <div>
       <div className='chat-header'>
       </div>
-
       <div className='chat-container'>
         <div className='chat-messages'>
           {messages.map((item, index) => (
@@ -205,6 +201,7 @@ const ChatRoom = ({ username }) => {
             value={inputMessage}
             onChange={handleInputChange}
             onKeyDown={(e) => activeSend(e)}
+            disabled={modalVisible}
           />
           <button
             className="chat-input-button"
@@ -213,7 +210,14 @@ const ChatRoom = ({ username }) => {
             <RiSendPlane2Fill />
           </button>
         </div>
-
+        {modalVisible && (
+          <div className="modal">
+            <div className="modal-content">
+              <span className="modal-close" onClick={closeModal}>&times;</span>
+              <p>{errorMessage}</p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
