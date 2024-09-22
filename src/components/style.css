@@ -96,16 +96,19 @@
   background-color: #367FEE1A;
   color: black;
   border-bottom-right-radius: 0;
+  border: 1px solid #367FEE1A;
 }
 
 .other-message {
   background-color: #ffffff;
   color: black;
   border-bottom-left-radius: 0;
+  border: 1px solid #ffffff;
 }
 
 .notify-message {
   background-color: transparent;
+  text-align: center;
   color: black;
   border: 1px solid black;
 }

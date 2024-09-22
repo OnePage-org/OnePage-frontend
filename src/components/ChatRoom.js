@@ -42,6 +42,21 @@ const ChatRoom = ({ username }) => {
         });
     }
 
+    if (inputMessage.length > 200) {
+      /* 에러 */
+      axios.post(`${DOMAIN}/api/v1/filtering`, {
+        status: "error",
+        data: body,
+        message: "too long chatMessage data"
+      })
+        .then(response => {
+          console.log("Response:", response.data);
+        })
+        .catch(error => {
+          console.error("Error:", error);
+        });
+    }
+
     if (stompClient.current && inputMessage && inputMessage.trim().length > 0) {
       stompClient.current.send("/pub/messages", {}, JSON.stringify(body));
 
@@ -179,6 +194,10 @@ const ChatRoom = ({ username }) => {
           <span className='message-length'>글자 수 : {inputCnt}/{max_length}</span>
         </div>
         <div className="chat-input-wrapper">
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <RiRobot2Line style={{ marginRight: '8px' }} />
+            <span>클린봇이 감지하고 있습니다</span>
+          </div>
           <textarea
             placeholder='채팅을 입력하세요.'
             className="chat-input-container"
