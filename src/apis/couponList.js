@@ -1,27 +1,21 @@
-import axios from "axios";
+import axios from 'axios';
 import { API_DOMAIN } from "../common/common";
-
-const responseHandler = (response) => response.data;
-const errorHandler = (error) => {
-    if (!error.response || !error.response.data) return null;
-    const responseBody = error.response.data;
-    return responseBody;
-};
-
-const COUPON_LIST_URL = () => `${API_DOMAIN}/coupons`;
+import { getCookie } from '../common/Cookie';
 
 export const getCouponList = async () => {
-    const result = await axios
-        .get(COUPON_LIST_URL())
-        .then(responseHandler)
-        .catch(errorHandler);
-    return result;
+    try {
+        const token = getCookie("accessToken");
+
+        const response = await axios.get(`${API_DOMAIN}/coupon-event/list`, {
+            headers: {
+                Authorization: `${token}`,
+            },
+        }); // 백엔드 API 호출
+        return response.data; // 데이터 반환
+    } catch (error) {
+        console.error("Failed to fetch coupon event list:", error);
+        throw error;
+    }
 };
 
-export const applyCoupon = async (couponId) => {
-    const result = await axios
-        .post(`${COUPON_LIST_URL()}/${couponId}/apply`)
-        .then(responseHandler)
-        .catch(errorHandler);
-    return result;
-};
+// API 요청 보내기
