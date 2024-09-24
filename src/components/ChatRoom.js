@@ -6,6 +6,7 @@ import { TbMessageDots } from "react-icons/tb";
 import { RiSendPlane2Fill } from "react-icons/ri";
 import { DOMAIN } from "../common/common";
 import axios from "axios";
+import style from "../css/chatroom.module.css"
 
 import './style.css';
 
@@ -164,7 +165,7 @@ const ChatRoom = ({ username }) => {
   }, [modalVisible]);
 
   return (
-    <div>
+    <div className={style.container}>
       <div className='chat-header'>
       </div>
       <div className='chat-container'>
