@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { DOMAIN } from "../common/common";
 import trophy from './trophy.svg';
 import Winner from './Winner.svg';
 
