@@ -13,7 +13,7 @@ const LeaderboardScreen = () => {
 
   useEffect(() => {
     const fetchLeaderboard = () => {
-      fetch(`http://localhost:8080/sse/leaderboard?couponCategory=${selectedCategory}`)
+      fetch(`${DOMAIN}/sse/leaderboard?couponCategory=${selectedCategory}`)
         .then((response) => {
           if (response.ok) {
             return response.json();
@@ -33,7 +33,7 @@ const LeaderboardScreen = () => {
     };
     console.log('useEffect triggered on page reload or category change, selectedCategory:', selectedCategory);
     
-    const newEventSource = new EventSource(`http://localhost:8080/sse/leaderboard/stream?couponCategory=${selectedCategory}`, { withCredentials: true });
+    const newEventSource = new EventSource(`${DOMAIN}/sse/leaderboard/stream?couponCategory=${selectedCategory}`, { withCredentials: true });
     console.log('EventSource created:', newEventSource);
     setEventSource(newEventSource);
 
@@ -75,7 +75,7 @@ const LeaderboardScreen = () => {
       // SSE 연결 실패 시 재연결 시도
       setTimeout(() => {
         console.log('Reconnecting SSE...');
-        const reconnectEventSource = new EventSource(`http://localhost:8080/sse/leaderboard/stream?couponCategory=${selectedCategory}`, { withCredentials: true });
+        const reconnectEventSource = new EventSource(`${DOMAIN}/sse/leaderboard/stream?couponCategory=${selectedCategory}`, { withCredentials: true });
         setEventSource(reconnectEventSource);
       }, 5000);
     };
