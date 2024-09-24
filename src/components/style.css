@@ -1,10 +1,10 @@
 /*chat css start*/
 .chat-container {
   width: 25vw;
-  height: 95vh;
+  height: 85vh;
   margin: auto;
   padding: 20px;
-  background-color: #F3F4F6;
+  background-color: #f3f4f6;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   display: flex;
@@ -95,10 +95,10 @@
 }
 
 .my-message {
-  background-color: #367FEE1A;
+  background-color: #367fee1a;
   color: black;
   border-bottom-right-radius: 0;
-  border: 1px solid #367FEE1A;
+  border: 1px solid #367fee1a;
 }
 
 .other-message {
@@ -196,6 +196,5 @@
 /*chat css end*/
 
 /*couponList css start*/
-
 
 /*couponList css end*/

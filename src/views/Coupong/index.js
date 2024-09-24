@@ -3,10 +3,12 @@ import { API_DOMAIN } from "../../common/common";
 import { getCookie, removeCookie } from "../../common/Cookie";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import "./style.css";
+import logoutButton from "../../assets/images/logout.png";
 
-import Leaderboard from '../../components/Leaderboard';
-import CouponList from '../../components/CouponList';
-import ChatRoom from '../../components/ChatRoom';
+import Leaderboard from "../../components/Leaderboard";
+import CouponList from "../../components/CouponList";
+import ChatRoom from "../../components/ChatRoom";
 
 export default function CoupongMain() {
   const TOKEN_DECRYPTION = () => `${API_DOMAIN}/auth/tokenDecryption`;
@@ -60,11 +62,24 @@ export default function CoupongMain() {
     //   <h1>{userData.role}</h1>
     //   <button onClick={logout}>로그아웃</button>
     // </div>
-
-    <div style={{ display: 'flex', height: '100vh', justifyContent: 'space-between'}}>
-      <Leaderboard />
-      <CouponList />
-      <ChatRoom username = {userData.username} />
+    <div className="main-container">
+      <div className="header">
+        <p className="user-name">{userData.username} 님, 반갑습니다 !</p>
+        <div className="logout" onClick={logout}>
+          <img src={logoutButton}></img>
+        </div>
+      </div>
+      <div
+        style={{
+          display: "flex",
+          height: "90vh",
+          justifyContent: "space-between",
+        }}
+      >
+        <Leaderboard />
+        <CouponList />
+        <ChatRoom username={userData.username} />
+      </div>
     </div>
   );
 }
