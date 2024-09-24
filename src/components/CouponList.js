@@ -3,6 +3,8 @@ import { getCouponList } from "../apis/couponList"; // API 함수 임포트
 import { getCookie } from "../common/Cookie";
 import axios from "axios";
 import { API_DOMAIN } from "../common/common";
+import banapresso from "../assets/logos/banapresso.png";
+// import "./listStyle.css";
 import style from "../css/couponlist.module.css";
 
 const CouponList = () => {
@@ -79,17 +81,18 @@ const CouponList = () => {
   // 쿠폰 이벤트가 있을 때 렌더링할 UI
   return (
     <div className={style.container}>
-      <h2>Coupon Events</h2>
       {couponEvents.map((event, index) => (
         <div className={style.couponList} key={index}>
           <div className={style.logo}>
             <img
-              src={event.logoUrl}
+              src={banapresso}
+              //   src={event.logoUrl}
               alt={`${event.brand} logo`}
               className={style.logoImg}
             />
             <div>
-              <h3>{event.eventName}</h3>
+              {/* <h2>{event.eventName}</h2> */}
+              <p className={style.eventName}>제로슈가 아이스티</p>
               <p className={style.eventCategory}>{event.eventCategory}</p>
               <p className={style.startTime}>
                 {new Date(event.startTime).toLocaleString()}
