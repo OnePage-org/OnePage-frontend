@@ -61,7 +61,7 @@ export default function CoupongMain() {
     //   <button onClick={logout}>로그아웃</button>
     // </div>
 
-    <div style={{ display: 'flex', height: '100vh' }}>
+    <div style={{ display: 'flex', height: '100vh', justifyContent: 'space-between'}}>
       <Leaderboard />
       <CouponList />
       <ChatRoom username = {userData.username} />

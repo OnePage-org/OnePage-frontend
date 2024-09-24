@@ -1,0 +1,49 @@
+.container {
+    background-color: #FFF;
+    padding: 20px;
+    width: 100%;
+    display: flex;
+    
+}
+
+h3{
+    margin: 0;
+}
+
+.eventCategory{
+    margin: 5px 0;
+    color: #555;
+}
+
+.startTime{
+    margin: 5px 0;
+    color: #888;
+}
+
+button{
+    background-color: #007BFF;
+    color: #FFF;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+.couponList{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ccc;
+    padding: 15px 10px;
+    margin-bottom: 10px;
+}
+
+.logo{
+    display: flex;
+    align-items: center;
+}
+
+.logoImg{
+    width: 50px;
+    margin-right: 15px;
+}

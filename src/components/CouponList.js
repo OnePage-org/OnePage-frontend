@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getCouponList } from '../apis/couponList'; // API 함수 임포트
+import style from '../css/couponlist.module.css';
+
 
 const CouponList = () => {
     // couponEvents 초기값을 빈 배열로 설정
@@ -48,37 +50,23 @@ const CouponList = () => {
 
     // 쿠폰 이벤트가 있을 때 렌더링할 UI
     return (
-        <div style={{ backgroundColor: '#FFF', padding: '20px' }}>
+        <div className={style.container}>
             <h2>Coupon Events</h2>
             {couponEvents.map((event, index) => (
-                <div key={index} style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    borderBottom: '1px solid #ccc',
-                    padding: '15px 10px',
-                    marginBottom: '10px'
-                }}>
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                <div className={style.couponList} key={index}>
+                    <div className={style.logo}>
                         <img
                             src={event.logoUrl}
                             alt={`${event.brand} logo`}
-                            style={{ width: '50px', marginRight: '15px' }}
+                            className={style.logoImg}
                         />
                         <div>
-                            <h3 style={{ margin: '0' }}>{event.eventName}</h3>
-                            <p style={{ margin: '5px 0', color: '#555' }}>{event.eventCategory}</p>
-                            <p style={{ margin: '5px 0', color: '#888' }}>{new Date(event.startTime).toLocaleString()}</p>
+                            <h3>{event.eventName}</h3>
+                            <p className={style.eventCategory}>{event.eventCategory}</p>
+                            <p className={style.startTime}>{new Date(event.startTime).toLocaleString()}</p>
                         </div>
                     </div>
-                    <button style={{
-                        backgroundColor: '#007BFF',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: '5px',
-                        padding: '10px 20px',
-                        cursor: 'pointer'
-                    }}>
+                    <button>
                         응모하기
                     </button>
                 </div>
