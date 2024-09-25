@@ -7,7 +7,7 @@ import banapresso from "../assets/logos/banapresso.png";
 // import "./listStyle.css";
 import style from "../css/couponlist.module.css";
 
-const CouponList = () => {
+const CouponList = ({ userNameInfo }) => {
   // couponEvents 초기값을 빈 배열로 설정
   const [couponEvents, setCouponEvents] = useState([]);
   const [loading, setLoading] = useState(true); // 로딩 상태 관리
@@ -46,6 +46,7 @@ const CouponList = () => {
         id: 0,
         couponCategory: category,
         attemptAt: startMs,
+        username: userNameInfo,
       };
 
       const result = await axios.post(
