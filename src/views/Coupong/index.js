@@ -81,8 +81,8 @@ export default function CoupongMain() {
         }}
       >
         <Leaderboard />
-        <CouponList username={userData.username} />
-        <ChatRoom userNameInfo={userData.username} />
+        <CouponList userNameInfo={userData.username} />
+        <ChatRoom ref= {chatRoomRef} username={userData.username} />
       </div>
     </div>
   );
