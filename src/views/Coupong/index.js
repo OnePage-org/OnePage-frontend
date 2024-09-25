@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { API_DOMAIN } from "../../common/common";
 import { getCookie, removeCookie } from "../../common/Cookie";
 import axios from "axios";
@@ -14,9 +14,13 @@ export default function CoupongMain() {
   const TOKEN_DECRYPTION = () => `${API_DOMAIN}/auth/tokenDecryption`;
   const [userData, setUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const chatRoomRef = useRef();
   const navigate = useNavigate();
 
   const logout = () => {
+    if (chatRoomRef.current) {
+      chatRoomRef.current.handleExit();
+    }
     removeCookie("accessToken");
     navigate("/signIn");
   };
@@ -78,7 +82,7 @@ export default function CoupongMain() {
       >
         <Leaderboard />
         <CouponList />
-        <ChatRoom username={userData.username} />
+        <ChatRoom ref= {chatRoomRef} username={userData.username} />
       </div>
     </div>
   );

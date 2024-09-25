@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useImperativeHandle, forwardRef } from 'react';
 import SockJS from 'sockjs-client';
 import { Stomp } from "@stomp/stompjs";
 import { RiRobot2Line } from "react-icons/ri";
@@ -9,8 +9,9 @@ import axios from "axios";
 import style from "../css/chatroom.module.css"
 
 import './style.css';
+import { getCookie } from '../common/Cookie';
 
-const ChatRoom = ({ username }) => {
+const ChatRoom = forwardRef (({ username }, ref ) => {
   const stompClient = useRef(null);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
@@ -28,6 +29,11 @@ const ChatRoom = ({ username }) => {
     setErrorMessage('');
   };
 
+
+  useImperativeHandle(ref, () => ({
+    handleExit,
+  }));
+  
   // 메시지 전송
   const sendMessage = () => {
     const body = {
@@ -113,6 +119,7 @@ const ChatRoom = ({ username }) => {
     }
   };
 
+
   useEffect(() => {
     if (!username) return;
 
@@ -138,13 +145,16 @@ const ChatRoom = ({ username }) => {
       console.error("STOMP connection error:", error);
     });
 
+
     window.addEventListener('beforeunload', handleExit);
 
     return () => {
       window.removeEventListener('beforeunload', handleExit);
+      
       disconnect();
     };
   }, [username]);
+
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -163,6 +173,9 @@ const ChatRoom = ({ username }) => {
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [modalVisible]);
+
+
+
 
   return (
     <div className={style.container}>
@@ -222,6 +235,6 @@ const ChatRoom = ({ username }) => {
       </div>
     </div>
   );
-};
-
+}
+)
 export default ChatRoom;
