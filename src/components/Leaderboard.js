@@ -42,17 +42,16 @@ const LeaderboardScreen = () => {
 
             source.onopen = () => {
                 console.log("EventSource connection opened, readyState:", source.readyState);
+                setMessage(""); // 연결이 성공적으로 열렸을 때 메시지를 초기화
             };
 
             source.onmessage = (event) => {
                 console.log("Received message:", event.data);
 
-                // // keep-alive 메시지 처리
-                // if (event.data === "keep-alive") {
-                //     // 서버에 keep-alive 요청 전송
-                //     fetch(`${DOMAIN}/sse/keep-alive`, { method: 'POST' });
-                //     return;
-                // }
+                if (event.data.trim() === '') {
+                    console.warn("Received an empty message");
+                    return; // 메시지가 비어있는 경우 종료
+                }
 
                 try {
                     const jsonData = JSON.parse(event.data);
@@ -111,7 +110,7 @@ const LeaderboardScreen = () => {
         const couponCategory = selectedCategory; // 선택된 카테고리 사용
         const userId = "희준";
         const attemptAt = 8;
-
+    
         fetch(`${DOMAIN}/leaderboardqueueservice/addtozset`, {
             method: "POST",
             headers: {
@@ -121,18 +120,17 @@ const LeaderboardScreen = () => {
         })
         .then((response) => {
             if (response.ok) {
-                return response.json();
+                console.log("Successfully added to ZSet");
+                // 여기서는 fetchLeaderboard 호출을 하지 않음
+            } else {
+                throw new Error("Network response was not ok.");
             }
-            throw new Error("Network response was not ok.");
-        })
-        .then((data) => {
-            console.log("Successfully added to ZSet:", data);
-            fetchLeaderboard(); // 리더보드 재로딩
         })
         .catch((error) => {
             console.error("Error adding to ZSet:", error);
         });
     };
+    
 
     return (
         <div style={containerStyle}>
