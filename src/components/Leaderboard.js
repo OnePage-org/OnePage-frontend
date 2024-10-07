@@ -106,32 +106,6 @@ const LeaderboardScreen = () => {
         setSelectedCategory(event.target.value); // 카테고리 변경 후 새 연결
     };
 
-    const handleAddToZSet = () => {
-        const couponCategory = selectedCategory; // 선택된 카테고리 사용
-        const userId = "희준";
-        const attemptAt = 8;
-    
-        fetch(`${DOMAIN}/leaderboardqueueservice/addtozset`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ couponCategory, userId, attemptAt }),
-        })
-        .then((response) => {
-            if (response.ok) {
-                console.log("Successfully added to ZSet");
-                // 여기서는 fetchLeaderboard 호출을 하지 않음
-            } else {
-                throw new Error("Network response was not ok.");
-            }
-        })
-        .catch((error) => {
-            console.error("Error adding to ZSet:", error);
-        });
-    };
-    
-
     return (
         <div style={containerStyle}>
             <div style={titleContainerStyle}>
@@ -139,12 +113,13 @@ const LeaderboardScreen = () => {
                 <img src={Winner} alt="Winner" style={logo} />
             </div>
 
-            <div style={formcontrol}>
-                <label htmlFor="category-select">카테고리 선택</label>
+            <div style={formControlContainer}>
+                <label htmlFor="category-select" style={labelStyle}>카테고리 선택</label>
                 <select
                     id="category-select"
                     value={selectedCategory}
                     onChange={handleCategoryChange}
+                    style={selectStyle}
                 >
                     {CATEGORIES.map((category) => (
                         <option key={category} value={category}>
@@ -153,10 +128,6 @@ const LeaderboardScreen = () => {
                     ))}
                 </select>
             </div>
-
-            <button onClick={handleAddToZSet} style={buttonStyle}>
-                리더보드에 추가
-            </button>
 
             <div style={scrollContainerStyle}>
                 <ul style={listStyle}>
@@ -181,19 +152,25 @@ const LeaderboardScreen = () => {
 };
 
 // 인라인 스타일링
-const formcontrol = {
+const formControlContainer = {
     width: "250px",
     margin: "20px 10px 20px 15px",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-start",
 };
 
-const buttonStyle = {
-    padding: "10px 20px",
-    backgroundColor: "#377fee",
-    color: "#fff",
-    border: "none",
+const labelStyle = {
+    marginBottom: "10px",
+    fontWeight: "bold",
+    color: "#333",
+};
+
+const selectStyle = {
+    padding: "10px",
     borderRadius: "5px",
-    cursor: "pointer",
-    margin: "10px 0",
+    border: "1px solid #d9d9d9",
+    fontSize: "16px",
 };
 
 const containerStyle = {
