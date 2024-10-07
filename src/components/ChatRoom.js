@@ -9,7 +9,6 @@ import axios from "axios";
 import style from "../css/chatroom.module.css"
 
 import './style.css';
-import { getCookie } from '../common/Cookie';
 
 const ChatRoom = forwardRef (({ username }, ref ) => {
   const stompClient = useRef(null);
@@ -29,9 +28,9 @@ const ChatRoom = forwardRef (({ username }, ref ) => {
     setErrorMessage('');
   };
 
-
   useImperativeHandle(ref, () => ({
     handleExit,
+    handleEnter,
   }));
   
   // 메시지 전송
@@ -56,6 +55,7 @@ const ChatRoom = forwardRef (({ username }, ref ) => {
           if (response.data === "fail") { /* 금칙어가 포함된 상태 */
             setErrorMessage("금칙어가 포함되어 있습니다.");
             setModalVisible(true);
+            setInputMessage('');
             return;
           }
           stompClient.current.send("/pub/messages", {}, JSON.stringify(body));

@@ -52,6 +52,9 @@ export default function CoupongMain() {
     };
 
     fetchUserData();
+    if (chatRoomRef.current) {
+      chatRoomRef.current.handleEnter();
+    }
   }, []);
 
   if (isLoading) {
