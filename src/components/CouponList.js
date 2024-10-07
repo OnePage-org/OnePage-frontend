@@ -3,7 +3,9 @@ import { getCouponList } from "../apis/couponList";
 import { getCookie } from "../common/Cookie";
 import axios from "axios";
 import { API_DOMAIN } from "../common/common";
-import banapresso from "../assets/logos/banapresso.png";
+import banapresso from "../assets/logos/banapresso.png"; // Coffee 카테고리 이미지
+import dominosPizza from "../assets/logos/dominosPizza.jpg"; // Pizza 카테고리 이미지
+import bhcChicken from "../assets/logos/bhcChicken.jpeg"; // Chicken 카테고리 이미지
 import style from "../css/couponlist.module.css";
 
 const CouponList = ({ userNameInfo }) => {
@@ -88,6 +90,20 @@ const CouponList = ({ userNameInfo }) => {
     setSuccessModal(false); // 성공 모달 닫기
   };
 
+  // 카테고리에 맞는 이미지를 반환하는 함수
+  const getImageByCategory = (category) => {
+    switch (category) {
+      case "PIZZA":
+        return dominosPizza;
+      case "COFFEE":
+        return banapresso;
+      case "CHICKEN":
+        return bhcChicken;
+      default:
+        return banapresso;
+    }
+  };
+
   // 로딩 중일 때 표시할 UI
   if (loading) {
     return <div>Loading coupon events...</div>;
@@ -145,12 +161,12 @@ const CouponList = ({ userNameInfo }) => {
         <div className={style.couponList} key={index}>
           <div className={style.logo}>
             <img
-              src={banapresso}
+              src={getImageByCategory(event.eventCategory)} // 카테고리에 따라 이미지 결정
               alt={`${event.brand} logo`}
               className={style.logoImg}
             />
             <div>
-              <p className={style.eventName}>제로슈가 아이스티</p>
+              <p className={style.eventName}>{event.eventName}</p>
               <p className={style.eventCategory}>{event.eventCategory}</p>
               <p className={style.startTime}>
                 {new Date(event.startTime).toLocaleString()}

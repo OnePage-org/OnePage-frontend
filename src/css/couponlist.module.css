@@ -89,7 +89,7 @@ button {
 }
 
 .confirmButton {
-  background-color: #4CAF50;
+  background-color: #023871;
   color: white;
   border: none;
   padding: 10px 20px;
@@ -99,7 +99,7 @@ button {
 }
 
 .confirmButton:hover {
-  background-color: #45a049;
+  background-color: #023871;
 }
 
 /* 프로그레스바 */
@@ -127,7 +127,7 @@ button {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: #4CAF50;
+  background-color: #023871;
   animation: progress-animation 5s linear;
 }
 
@@ -149,11 +149,22 @@ button {
 }
 
 .activeButton {
-  background-color: #4CAF50;
+  background-color: #367fee;
   color: white;
   cursor: pointer;
 }
 
 .activeButton:hover {
-  background-color: #45a049;
+  background-color: #367fee;
+}
+
+.logoImg {
+  width: 100px;
+  /* 너비를 고정 */
+  height: 100px;
+  /* 높이를 고정 */
+  object-fit: contain;
+  /* 이미지가 왜곡되지 않도록, 비율 유지하며 빈 공간을 채움 */
+  border-radius: 10px;
+  /* 이미지를 둥글게 */
 }
