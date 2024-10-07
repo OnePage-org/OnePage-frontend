@@ -1,25 +1,26 @@
 import React, { useState, useEffect } from "react";
-import { getCouponList } from "../apis/couponList"; // API 함수 임포트
+import { getCouponList } from "../apis/couponList";
 import { getCookie } from "../common/Cookie";
 import axios from "axios";
 import { API_DOMAIN } from "../common/common";
 import banapresso from "../assets/logos/banapresso.png";
-// import "./listStyle.css";
 import style from "../css/couponlist.module.css";
 
 const CouponList = ({ userNameInfo }) => {
-  // couponEvents 초기값을 빈 배열로 설정
   const [couponEvents, setCouponEvents] = useState([]);
   const [loading, setLoading] = useState(true); // 로딩 상태 관리
   const [error, setError] = useState(null); // 에러 상태 관리
+  const [showModal, setShowModal] = useState(false); // 모달 상태
+  const [modalMessage, setModalMessage] = useState(""); // 모달 메시지
+  const [loadingProgress, setLoadingProgress] = useState(false); // 프로그레스바 상태
+  const [buttonDisabled, setButtonDisabled] = useState(false); // 버튼 비활성화 상태
+  const [successModal, setSuccessModal] = useState(false); // 성공 모달 상태
 
-  // 쿠폰 이벤트 목록을 가져오는 useEffect
   useEffect(() => {
     const fetchCouponEvents = async () => {
       try {
         const data = await getCouponList(); // API 호출
         console.log(data);
-        // 데이터가 배열인지 확인하고 배열이 아닌 경우에도 배열로 처리
         if (Array.isArray(data)) {
           setCouponEvents(data);
         } else if (data) {
@@ -34,34 +35,57 @@ const CouponList = ({ userNameInfo }) => {
       }
     };
 
-    fetchCouponEvents(); // 컴포넌트 마운트 시 API 호출
+    fetchCouponEvents();
   }, []);
 
   const onApplyClickHandler = async (category) => {
     try {
+      setButtonDisabled(true); // 버튼 비활성화
       const token = getCookie("accessToken");
       const startMs = Date.now();
 
       const requestBody = {
-        id: 0,
+        id: 0, // 서버에서 유저 ID 처리
         couponCategory: category,
         attemptAt: startMs,
         username: userNameInfo,
       };
 
-      const result = await axios.post(
-        `${API_DOMAIN}/coupon-event/attempt`,
-        requestBody,
-        {
-          headers: {
-            Authorization: `${token}`,
-          },
-        }
-      );
-      return result.data;
+      const result = await axios.post(`${API_DOMAIN}/coupon-event/attempt`, requestBody, {
+        headers: {
+          Authorization: `${token}`,
+        },
+      });
+
+      // 요청이 성공적으로 완료되면 5초간 프로그레스바 표시
+      if (result.status === 200) {
+        setLoadingProgress(true); // 프로그레스바 표시
+        setTimeout(() => {
+          setLoadingProgress(false); // 5초 후 프로그레스바 숨김
+          setSuccessModal(true); // 성공 모달 표시
+        }, 5000); // 5초 동안 프로그레스바 표시
+      }
+
     } catch (error) {
-      throw error;
+      if (error.response && error.response.status === 400) {
+        setModalMessage("이벤트가 아직 시작되지 않았습니다."); // 모달 메시지 설정
+        setShowModal(true); // 모달 표시
+      } else {
+        setModalMessage("쿠폰 발급 요청에 실패했습니다.");
+        setShowModal(true); // 실패 모달 표시
+        console.error(error);
+      }
+    } finally {
+      setButtonDisabled(false); // 버튼 다시 활성화
     }
+  };
+
+  const closeModal = () => {
+    setShowModal(false); // 모달 닫기
+  };
+
+  const closeSuccessModal = () => {
+    setSuccessModal(false); // 성공 모달 닫기
   };
 
   // 로딩 중일 때 표시할 UI
@@ -79,20 +103,53 @@ const CouponList = ({ userNameInfo }) => {
     return <div>No coupon events available.</div>;
   }
 
-  // 쿠폰 이벤트가 있을 때 렌더링할 UI
   return (
     <div className={style.container}>
+      {/* 성공 모달창 */}
+      {successModal && (
+        <div className={style.overlay}>
+          <div className={style.modal}>
+            <div className={style.modalContent}>
+              <p>쿠폰 발급 요청에 성공했습니다!</p>
+              <p>결과는 왼쪽 리더보드를 통해 확인하실 수 있습니다.</p>
+              <button onClick={closeSuccessModal} className={style.confirmButton}>확인</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 실패 또는 이벤트 시작 전 모달창 */}
+      {showModal && (
+        <div className={style.overlay}>
+          <div className={style.modal}>
+            <div className={style.modalContent}>
+              <p>{modalMessage}</p>
+              <button onClick={closeModal} className={style.confirmButton}>확인</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 프로그레스바 표시 */}
+      {loadingProgress && (
+        <div className={style.overlay}>
+          <div className={style.progressBarContainer}>
+            <div className={style.progressBar}></div>
+            <p>쿠폰 발급 요청 처리 중...</p>
+          </div>
+        </div>
+      )}
+
+      {/* 쿠폰 리스트 */}
       {couponEvents.map((event, index) => (
         <div className={style.couponList} key={index}>
           <div className={style.logo}>
             <img
               src={banapresso}
-              //   src={event.logoUrl}
               alt={`${event.brand} logo`}
               className={style.logoImg}
             />
             <div>
-              {/* <h2>{event.eventName}</h2> */}
               <p className={style.eventName}>제로슈가 아이스티</p>
               <p className={style.eventCategory}>{event.eventCategory}</p>
               <p className={style.startTime}>
@@ -100,7 +157,11 @@ const CouponList = ({ userNameInfo }) => {
               </p>
             </div>
           </div>
-          <button onClick={() => onApplyClickHandler(event.eventCategory)}>
+          <button
+            onClick={() => onApplyClickHandler(event.eventCategory)}
+            disabled={buttonDisabled || showModal || loadingProgress} // 버튼 비활성화 제어
+            className={buttonDisabled ? style.disabledButton : style.activeButton} // 버튼 스타일 변경
+          >
             응모하기
           </button>
         </div>
