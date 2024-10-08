@@ -115,7 +115,7 @@ const ChatRoom = forwardRef (({ username }, ref ) => {
   const disconnect = () => {
     if (stompClient.current) {
       stompClient.current.disconnect(() => {
-        console.log("Disconnected");
+        // console.log("Disconnected");
       });
     }
   };
@@ -127,7 +127,7 @@ const ChatRoom = forwardRef (({ username }, ref ) => {
     stompClient.current = Stomp.over(socket);
 
     stompClient.current.connect({}, (frame) => {
-      console.log('Connected: ' + frame);
+      // console.log('Connected: ' + frame);
 
       stompClient.current.subscribe("/sub/chat", (message) => {
         const newMessage = JSON.parse(message.body);

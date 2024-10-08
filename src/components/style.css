@@ -31,7 +31,6 @@
   height: auto;
 }
 
-
 .chat-messages {
   flex: 1;
   display: flex;
@@ -194,7 +193,6 @@
   cursor: pointer;
   font-size: 2rem;
 }
-
 
 @media (max-width: 5%) {
   .chat-container {
