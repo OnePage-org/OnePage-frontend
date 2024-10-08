@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useImperativeHandle, forwardRef } from 'react';
 import SockJS from 'sockjs-client';
-import { Stomp } from "@stomp/stompjs";
+import { Stomp } from '@stomp/stompjs';
 import { RiRobot2Line } from "react-icons/ri";
 import coupong_chat from "../assets/images/coupong_chat.svg";
 import chat from "../assets/images/chat.svg";
@@ -8,7 +8,9 @@ import { RiSendPlane2Fill } from "react-icons/ri";
 import { DOMAIN } from "../common/common";
 import axios from "axios";
 import style from "../css/chatroom.module.css"
-
+/* TODO : stomp.over did not receive a factory, auto reconnect will not work. please see https://stomp-js.github.io/api-docs/latest/classes/stomp.html#over 오류 해결 */
+/* token socket 수정 */
+/* css 수정 */
 import './style.css';
 
 const ChatRoom = forwardRef (({ username }, ref ) => {
@@ -57,6 +59,7 @@ const ChatRoom = forwardRef (({ username }, ref ) => {
             setErrorMessage("금칙어가 포함되어 있습니다.");
             setModalVisible(true);
             setInputMessage('');
+            setInputCnt(0);
             return;
           }
           stompClient.current.send("/pub/messages", {}, JSON.stringify(body));

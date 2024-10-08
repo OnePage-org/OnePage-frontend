@@ -1,4 +1,4 @@
-/*chat css start*/
+/* chat css start */
 .chat-container {
   width: 25vw;
   height: 85vh;
@@ -25,6 +25,7 @@
   position: relative;
   box-sizing: border-box;
 }
+
 .chat-header-Container img {
   margin-left: 10px;
   max-width: 100%;
@@ -37,21 +38,35 @@
   flex-direction: column;
   gap: 10px;
   overflow-y: auto;
-  margin-bottom: 40px;
+  padding: 10px 0;
+  margin-bottom: 20px;
 }
 
 .chat-input-wrapper {
   position: relative;
   box-shadow: 0 -2px 8px rgba(0, 89, 255, 0.1);
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  border: 2px solid transparent;
-  border-radius: 5px;
-  transition: border-color 0.3s;
-  flex-direction: column;
   gap: 10px;
+  padding: 10px;
+  background-color: #ffffff;
+  border-top: 1px solid #e5e7eb;
+  border-radius: 5px;
+  border: 2px solid transparent;
+  transition: border-color 0.3s;
+}
+
+.robot-info {
+  display: flex;
+  align-items: center;
+}
+
+.input-area {
+  display: flex;
+  align-items: center;
+  width: 100%;
 }
 
 .chat-input-container {
@@ -91,77 +106,88 @@
 
 .chat-message {
   display: flex;
+  flex-direction: column;
+  max-width: 80%;
+  word-break: break-word;
+  padding: 10px 15px;
+  border-radius: 24px;
+  position: relative;
+  font-size: 0.95rem;
   justify-content: space-between;
   align-items: flex-end;
-  border-radius: 24px;
-  padding: 10px;
   box-sizing: border-box;
   max-width: calc(100% - 20px);
-  word-break: break-word;
 }
 
 .my-message {
-  background-color: #367fee1a;
-  color: black;
+  background-color: #d1eaff;
+  align-self: flex-end;
   border-bottom-right-radius: 0;
-  border: 1px solid #367fee1a;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .other-message {
   background-color: #ffffff;
-  color: black;
+  align-self: flex-start;
   border-bottom-left-radius: 0;
-  border: 1px solid #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .notify-message {
   background-color: transparent;
-  text-align: center;
-  color: black;
-  border: 1px solid black;
+  align-self: center;
+  color: #888888;
+  font-style: italic;
+  padding: 5px 10px;
 }
 
 .message-content {
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
   white-space: pre-wrap;
-  justify-content: space-between;
-  position: relative;
 }
 
 .message-name {
-  font-weight: bold;
+  font-weight: 600;
   margin-bottom: 5px;
+  color: #333333;
 }
 
 .message-text {
   margin-bottom: 5px;
-  line-height: 1.4;
+  line-height: 1.5;
+  color: #444444;
 }
 
 .message-time {
-  font-size: 0.8rem;
-  color: black;
-  margin-left: auto;
-  white-space: nowrap;
+  font-size: 0.75rem;
+  color: #777777;
+  align-self: flex-end;
 }
 
 .info {
   display: flex;
   justify-content: space-between;
   width: 100%;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
+  font-size: 0.85rem;
+  color: #555555;
 }
 
-.user-count {
-  font-size: 0.8rem;
-  color: black;
-}
-
+.user-count,
 .message-length {
-  font-size: 0.8rem;
-  color: black;
+  display: flex;
+  align-items: center;
+}
+
+.user-count::before {
+  content: '👥';
+  margin-right: 5px;
+}
+
+.message-length::before {
+  content: '✏️';
+  margin-right: 5px;
 }
 
 .modal {
@@ -217,7 +243,6 @@
     max-width: 100%; 
   }
 }
-
 /*chat css end*/
 
 /*couponList css start*/
