@@ -14,17 +14,23 @@
   overflow: hidden;
 }
 
-.chat-header {
-  background-image: url(./../../public/coupong-chat.png);
-  height: 38px;
-  background-size: cover;
-  background-position: center;
-  padding: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 0 0 10px 10px;
+.chat-header-Container{
+  display: flex; 
+  align-items: center;
+  justify-content: left;
+  background-color: #377fee;
+  border-radius: 0px 0px 10px 10px;
+  height: 7%;
+  width: 25vw;
   position: relative;
-  z-index: 1000;
+  box-sizing: border-box;
 }
+.chat-header-Container img {
+  margin-left: 10px;
+  max-width: 100%;
+  height: auto;
+}
+
 
 .chat-messages {
   flex: 1;
@@ -165,7 +171,7 @@
   left: 50%;
   transform: translate(-50%, -50%);
   background-color: white;
-  border: 1px solid #ccc;
+  border: 1px solid #001b38;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
   padding: 20px;
   z-index: 100;
@@ -178,6 +184,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  color: #001b38;
 }
 
 .modal-close {
@@ -185,12 +192,31 @@
   top: 10px;
   right: 10px;
   cursor: pointer;
+  font-size: 2rem;
 }
 
-@media (max-width: 300px) {
+
+@media (max-width: 5%) {
   .chat-container {
-    width: 90vw;
-    height: 90vh;
+    height: 12vh;
+    border-radius: 0px 0px 6px 6px;
+    padding: 0;
+  }
+
+  .chat-header-Container {
+    flex-direction: column; 
+    align-items: center;
+    height: auto;
+    padding: 0; 
+    width: 100%; 
+    box-sizing: border-box; 
+  }
+
+  .chat-header-Container img {
+    margin: 0;
+    width: 100%;
+    height: auto; 
+    max-width: 100%; 
   }
 }
 

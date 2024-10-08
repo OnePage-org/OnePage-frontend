@@ -2,7 +2,8 @@ import React, { useEffect, useState, useRef, useImperativeHandle, forwardRef } f
 import SockJS from 'sockjs-client';
 import { Stomp } from "@stomp/stompjs";
 import { RiRobot2Line } from "react-icons/ri";
-import { TbMessageDots } from "react-icons/tb";
+import coupong_chat from "../assets/images/coupong_chat.svg";
+import chat from "../assets/images/chat.svg";
 import { RiSendPlane2Fill } from "react-icons/ri";
 import { DOMAIN } from "../common/common";
 import axios from "axios";
@@ -119,7 +120,6 @@ const ChatRoom = forwardRef (({ username }, ref ) => {
     }
   };
 
-
   useEffect(() => {
     if (!username) return;
 
@@ -174,12 +174,11 @@ const ChatRoom = forwardRef (({ username }, ref ) => {
     };
   }, [modalVisible]);
 
-
-
-
   return (
-    <div className={style.container}>
-      <div className='chat-header'>
+    <div className={style.contaier}>
+      <div className='chat-header-Container'>
+        <img src={chat} alt = "chat icon" style={{marginLeft: "10px"}} />
+        <img src={coupong_chat} alt="chat header" style={{marginLeft: "10px"}} />
       </div>
       <div className='chat-container'>
         <div className='chat-messages'>
