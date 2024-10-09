@@ -41,6 +41,8 @@ const ChatRoom = forwardRef(({ username }, ref) => {
     if (!inputMessage || inputMessage.trim().length === 0) {
       setErrorMessage("메시지를 입력해주세요.");
       setModalVisible(true);
+      setInputMessage('');
+      setInputCnt(0);
       return;
     }
 
@@ -125,16 +127,16 @@ const ChatRoom = forwardRef(({ username }, ref) => {
       reconnectDelay: 5000, // 자동 연결
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
-      debug: (str) => {
-        console.log(str);
-      },
+      // debug: (str) => {
+        // console.log(str);
+      // },
       onConnect: () => {
         handleEnter();
 
         client.subscribe("/sub/chat", (message) => {
           const newMessage = JSON.parse(message.body);
           setMessages((prevMessages) => [...prevMessages, newMessage]);
-          console.log("Received message:", message.body);
+          // console.log("Received message:", message.body);
         });
 
         client.subscribe("/sub/users", (messageCount) => {
@@ -184,7 +186,7 @@ const ChatRoom = forwardRef(({ username }, ref) => {
   }, [modalVisible]);
 
   useEffect(() => {
-    console.log(`현재 사용자 수: ${userCnt}`);
+    // console.log(`USERS : ${userCnt}`);
     if (userCnt === 0) {
       handleEnter();
     }
