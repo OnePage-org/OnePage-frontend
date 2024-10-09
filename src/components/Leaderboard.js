@@ -2,19 +2,17 @@ import React, { useState, useEffect } from "react";
 import { DOMAIN } from "../common/common";
 import trophy from "./trophy.svg";
 import Winner from "./Winner.svg";
-
-// 카테고리 상수화
-const CATEGORIES = ["CHICKEN", "COFFEE", "PIZZA"];
+import styles from '../css/leaderboard.module.css'; // CSS 모듈 import
 
 const LeaderboardScreen = () => {
-    const [leaderboard, setLeaderboard] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState(CATEGORIES[1]);
+    const [categories, setCategories] = useState([]); 
+    const [leaderboards, setLeaderboards] = useState({}); 
+    const [selectedCategory, setSelectedCategory] = useState("");
     const [message, setMessage] = useState("");
     const [eventSource, setEventSource] = useState(null);
 
-    // 리더보드 데이터를 가져오는 함수
-    const fetchLeaderboard = () => {
-        fetch(`${DOMAIN}/sse/leaderboard?couponCategory=${selectedCategory}`)
+    const fetchCategories = () => {
+        fetch(`${DOMAIN}/api/categories`)
             .then((response) => {
                 if (response.ok) {
                     return response.json();
@@ -22,106 +20,170 @@ const LeaderboardScreen = () => {
                 throw new Error("Network response was not ok.");
             })
             .then((data) => {
-                const winnersArray = data[selectedCategory] || [];
-                setLeaderboard(winnersArray);
-                setMessage(winnersArray.length === 0 ? "아직 당첨자가 없습니다." : "");
+                setCategories(data);
+                setSelectedCategory("ALL");
             })
             .catch((error) => {
-                console.error("Error fetching leaderboard:", error);
-                setLeaderboard([]);
-                setMessage("아직 당첨자가 없습니다.");
+                console.error("Error fetching categories:", error);
+                setMessage("카테고리를 불러오는 데 문제가 발생했습니다.");
             });
     };
 
+    const fetchLeaderboard = () => {
+        if (selectedCategory === "ALL") {
+            const fetchPromises = categories.map(category =>
+                fetch(`${DOMAIN}/sse/leaderboard?couponCategory=${category}`)
+                    .then(response => {
+                        if (!response.ok) throw new Error("Network response was not ok.");
+                        return response.json();
+                    })
+                    .then(data => {
+                        const winners = Object.entries(data[category] || {}).map(([userId, score]) => ({
+                            userId: userId,
+                            entryTime: new Date(score).toLocaleString()
+                        })) || [];
+                        return { category, winners };
+                    })
+                    .catch(error => {
+                        console.error(`Error fetching leaderboard for category ${category}:`, error);
+                        return { category, winners: [] };
+                    })
+            );
+
+            Promise.all(fetchPromises)
+                .then(results => {
+                    const newLeaderboards = {};
+                    results.forEach(({ category, winners }) => {
+                        newLeaderboards[category] = winners;
+                    });
+                    setLeaderboards(newLeaderboards);
+                })
+                .catch(error => {
+                    console.error("Error fetching leaderboards:", error);
+                    setMessage("리더보드를 불러오는 데 문제가 발생했습니다.");
+                });
+        } else {
+            fetch(`${DOMAIN}/sse/leaderboard?couponCategory=${selectedCategory}`)
+                .then(response => {
+                    if (!response.ok) throw new Error("Network response was not ok.");
+                    return response.json();
+                })
+                .then(data => {
+                    const winnersArray = Object.entries(data[selectedCategory] || {}).map(([userId, score]) => ({
+                        userId: userId,
+                        entryTime: new Date(score).toLocaleString()
+                    })) || [];
+                    setLeaderboards({ [selectedCategory]: winnersArray });
+                })
+                .catch(error => {
+                    console.error("Error fetching leaderboard:", error);
+                    setLeaderboards({});
+                    setMessage("아직 당첨자가 없습니다.");
+                });
+        }
+    };
+
     useEffect(() => {
-        // SSE 연결 설정
-        const createEventSource = () => {
-            const source = new EventSource(`${DOMAIN}/sse/leaderboard/stream?couponCategory=${selectedCategory}`, { withCredentials: true });
-            console.log("EventSource created:", source);
-            setEventSource(source);
+        fetchCategories();
+    }, []);
 
-            source.onopen = () => {
-                console.log("EventSource connection opened, readyState:", source.readyState);
-                setMessage(""); // 연결이 성공적으로 열렸을 때 메시지를 초기화
-            };
+    useEffect(() => {
+        if (selectedCategory) {
+            fetchLeaderboard();
+            createEventSource();
+        }
 
-            source.onmessage = (event) => {
-                console.log("Received message:", event.data);
-
-                if (event.data.trim() === '') {
-                    console.warn("Received an empty message");
-                    return; // 메시지가 비어있는 경우 종료
-                }
-
-                try {
-                    const jsonData = JSON.parse(event.data);
-                    console.log("Parsed JSON data:", jsonData);
-
-                    // 카테고리 체크
-                    if (jsonData.couponCategory === selectedCategory) {
-                        const winnersArray = jsonData.winners || [];
-
-                        // 빈 문자열 필터링
-                        const validWinners = winnersArray.filter(winner => winner.trim() !== "");
-
-                        // 상태 업데이트 최적화
-                        if (validWinners.length !== leaderboard.length || validWinners.some((winner, index) => winner !== leaderboard[index])) {
-                            setLeaderboard(validWinners);
-                            setMessage(validWinners.length === 0 ? "아직 당첨자가 없습니다." : "");
-                        }
-                    }
-                } catch (error) {
-                    console.error("Failed to parse JSON:", error);
-                }
-            };
-
-            source.onerror = (error) => {
-                console.error("EventSource failed:", error);
-                setMessage("리더보드 업데이트를 받을 수 없습니다.");
-                if (source.readyState === EventSource.CLOSED) {
-                    console.log("EventSource closed, attempting to reconnect...");
-                    setEventSource(null);
-                    setTimeout(createEventSource, 3000);  // 3초 후 재연결 시도
-                }
-            };
-        };
-
-        // 초기 데이터 로딩 및 SSE 연결
-        fetchLeaderboard();
-        createEventSource();
-
-        // 컴포넌트 언마운트 시 SSE 연결 종료
         return () => {
             if (eventSource) {
                 eventSource.close();
                 console.log("EventSource closed");
             }
         };
-    }, [selectedCategory]); // selectedCategory가 변경될 때마다 새로운 SSE 연결 생성
+    }, [selectedCategory]);
+
+    const createEventSource = () => {
+        const source = new EventSource(`${DOMAIN}/sse/leaderboard/stream?couponCategory=${selectedCategory}`, { withCredentials: true });
+        console.log("EventSource created:", source);
+        setEventSource(source);
+
+        source.onopen = () => {
+            console.log("EventSource connection opened, readyState:", source.readyState);
+            setMessage("");
+        };
+
+        source.onmessage = (event) => {
+            console.log("Received message:", event.data);
+            if (event.data.trim() === '') {
+                console.warn("Received an empty message");
+                return;
+            }
+
+            try {
+                const jsonData = JSON.parse(event.data);
+                console.log("Parsed JSON data:", jsonData);
+
+                if (!jsonData || !jsonData.couponCategory || !jsonData.winners) {
+                    console.warn("Invalid data received:", jsonData);
+                    return;
+                }
+
+                if (selectedCategory === "ALL") {
+                    const { couponCategory, winners, entryTime } = jsonData;
+                    const formattedWinners = (winners || []).map(winner => ({
+                        userId: winner,
+                        entryTime: new Date(entryTime).toLocaleString()
+                    }));
+                    setLeaderboards(prevLeaderboards => ({
+                        ...prevLeaderboards,
+                        [couponCategory]: formattedWinners
+                    }));
+                } else if (jsonData.couponCategory === selectedCategory) {
+                    const winnersArray = (jsonData.winners || []).map(winner => ({
+                        userId: winner,
+                        entryTime: new Date(jsonData.entryTime).toLocaleString()
+                    }));
+                    setLeaderboards({ [selectedCategory]: winnersArray });
+                }
+            } catch (error) {
+                console.error("Failed to parse JSON:", error);
+            }
+        };
+
+        source.onerror = (error) => {
+            console.error("EventSource failed:", error);
+            setMessage("리더보드 업데이트를 받을 수 없습니다.");
+            if (source.readyState === EventSource.CLOSED) {
+                console.log("EventSource closed, attempting to reconnect...");
+                setEventSource(null);
+                setTimeout(createEventSource, 3000);
+            }
+        };
+    };
 
     const handleCategoryChange = (event) => {
         if (eventSource) {
-            eventSource.close(); // 이전 SSE 연결 종료
+            eventSource.close();
         }
-        setSelectedCategory(event.target.value); // 카테고리 변경 후 새 연결
+        setSelectedCategory(event.target.value);
     };
 
     return (
-        <div style={containerStyle}>
-            <div style={titleContainerStyle}>
-                <img src={trophy} alt="Winner Icon" style={logo} />
-                <img src={Winner} alt="Winner" style={logo} />
+        <div className={styles.leaderboardContainer}>
+            <div className={styles.titleContainer}>
+                <img src={trophy} alt="Winner Icon" className={styles.logo} />
+                <img src={Winner} alt="Winner" className={styles.logo} />
             </div>
 
-            <div style={formControlContainer}>
-                <label htmlFor="category-select" style={labelStyle}>카테고리 선택</label>
+            <div className={styles.formControlContainer}>
+                <label htmlFor="category-select" className={styles.label}>카테고리 선택</label>
                 <select
                     id="category-select"
                     value={selectedCategory}
                     onChange={handleCategoryChange}
-                    style={selectStyle}
+                    className={styles.select}
                 >
-                    {CATEGORIES.map((category) => (
+                    <option value="ALL">ALL</option>
+                    {categories.map((category) => (
                         <option key={category} value={category}>
                             {category}
                         </option>
@@ -129,98 +191,49 @@ const LeaderboardScreen = () => {
                 </select>
             </div>
 
-            <div style={scrollContainerStyle}>
-                <ul style={listStyle}>
-                    {leaderboard.map((item, index) => (
-                        <li key={index} style={listItemStyle}>
-                            <span style={textStyle}>
-                                축하합니다!
-                                <br /> {item} 님께서 {selectedCategory} 응모에
-                                <br /> 당첨되셨습니다!
-                            </span>
-                        </li>
-                    ))}
-                </ul>
+            <div className={styles.scrollContainer}>
+                <div className={styles.cardContainer}>
+                    {selectedCategory === "ALL" ? (
+                        Object.keys(leaderboards).map((category) => (
+                            <div key={category} className={styles.categoryCard}>
+                                <h2>{category}</h2>
+                                <div className={styles.cardsContainer}>
+                                    {(leaderboards[category] || []).length > 0 ? (
+                                        leaderboards[category].map((winner, index) => (
+                                            <div key={index} className={styles.winnerCard}>
+                                                <h3>{winner.userId}</h3>
+                                                <p>축하합니다! {winner.userId} 님께서 {category} 응모에 당첨되셨습니다!</p>
+                                                <p>응모 시간: {winner.entryTime}</p>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className={styles.winnerCard}>아직 당첨자가 없습니다.</div>
+                                    )}
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        leaderboards[selectedCategory]?.length > 0 ? (
+                            leaderboards[selectedCategory].map((item, index) => (
+                                <div key={index} className={styles.winnerCard}>
+                                    <h3>{item.userId}</h3>
+                                    <p>축하합니다! {item.userId} 님께서 {selectedCategory} 응모에 당첨되셨습니다!</p>
+                                    <p>응모 시간: {item.entryTime}</p>
+                                </div>
+                            ))
+                        ) : (
+                            <div className={styles.winnerCard}>아직 당첨자가 없습니다.</div>
+                        )
+                    )}
+                </div>
                 {message && (
-                    <div style={{ textAlign: "center", marginTop: "20px", color: "#000000" }}>
+                    <div className={styles.message}>
                         {message}
                     </div>
                 )}
             </div>
         </div>
     );
-};
-
-// 인라인 스타일링
-const formControlContainer = {
-    width: "250px",
-    margin: "20px 10px 20px 15px",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-start",
-};
-
-const labelStyle = {
-    marginBottom: "10px",
-    fontWeight: "bold",
-    color: "#333",
-};
-
-const selectStyle = {
-    padding: "10px",
-    borderRadius: "5px",
-    border: "1px solid #d9d9d9",
-    fontSize: "16px",
-};
-
-const containerStyle = {
-    backgroundColor: "#FFFFFF",
-    width: "25%",
-    height: "100%",
-    borderRight: "2px solid #d9d9d9",
-    padding: "0px",
-};
-
-const titleContainerStyle = {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "left",
-    backgroundColor: "#377fee",
-    borderRadius: "0px 0px 10px 10px",
-    height: "7%",
-    width: "100%",
-};
-
-const scrollContainerStyle = {
-    width: "100%",
-    height: "calc(100% - 150px)",
-    overflowY: "auto",
-    margin: "0px 10px 20px 15px",
-};
-
-const listStyle = {
-    padding: 0,
-    width: "250px",
-    margin: 0,
-};
-
-const logo = {
-    marginLeft: "10px",
-};
-
-const listItemStyle = {
-    backgroundColor: "#f5f5f5",
-    borderRadius: "20px",
-    padding: "10px",
-    marginBottom: "10px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-};
-
-const textStyle = {
-    color: "#333",
-    fontSize: "16px",
 };
 
 export default LeaderboardScreen;
