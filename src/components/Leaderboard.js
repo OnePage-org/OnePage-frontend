@@ -11,6 +11,7 @@ const LeaderboardScreen = () => {
     const [message, setMessage] = useState("");
     const [eventSource, setEventSource] = useState(null);
 
+    // 카테고리 데이터 가져오기
     const fetchCategories = () => {
         fetch(`${DOMAIN}/api/categories`)
             .then((response) => {
@@ -21,7 +22,7 @@ const LeaderboardScreen = () => {
             })
             .then((data) => {
                 setCategories(data);
-                setSelectedCategory("ALL");
+                setSelectedCategory("ALL"); // 기본 카테고리 설정
             })
             .catch((error) => {
                 console.error("Error fetching categories:", error);
@@ -29,6 +30,7 @@ const LeaderboardScreen = () => {
             });
     };
 
+    // 리더보드 데이터 가져오기
     const fetchLeaderboard = () => {
         if (selectedCategory === "ALL") {
             const fetchPromises = categories.map(category =>
@@ -56,7 +58,7 @@ const LeaderboardScreen = () => {
                     results.forEach(({ category, winners }) => {
                         newLeaderboards[category] = winners;
                     });
-                    setLeaderboards(newLeaderboards);
+                    setLeaderboards(newLeaderboards); // 리더보드 데이터 업데이트
                 })
                 .catch(error => {
                     console.error("Error fetching leaderboards:", error);
@@ -73,7 +75,7 @@ const LeaderboardScreen = () => {
                         userId: userId,
                         entryTime: new Date(score).toLocaleString()
                     })) || [];
-                    setLeaderboards({ [selectedCategory]: winnersArray });
+                    setLeaderboards({ [selectedCategory]: winnersArray }); // 특정 카테고리 리더보드 업데이트
                 })
                 .catch(error => {
                     console.error("Error fetching leaderboard:", error);
@@ -84,23 +86,24 @@ const LeaderboardScreen = () => {
     };
 
     useEffect(() => {
-        fetchCategories();
+        fetchCategories(); // 컴포넌트 마운트 시 카테고리 데이터 가져오기
     }, []);
 
     useEffect(() => {
         if (selectedCategory) {
-            fetchLeaderboard();
-            createEventSource();
+            fetchLeaderboard(); // 카테고리 변경 시 리더보드 데이터 가져오기
+            createEventSource(); // SSE 연결 생성
         }
 
         return () => {
             if (eventSource) {
-                eventSource.close();
+                eventSource.close(); // 컴포넌트 언마운트 시 SSE 연결 종료
                 console.log("EventSource closed");
             }
         };
     }, [selectedCategory]);
 
+    // SSE 연결 생성
     const createEventSource = () => {
         const source = new EventSource(`${DOMAIN}/sse/leaderboard/stream?couponCategory=${selectedCategory}`, { withCredentials: true });
         console.log("EventSource created:", source);
@@ -108,7 +111,7 @@ const LeaderboardScreen = () => {
 
         source.onopen = () => {
             console.log("EventSource connection opened, readyState:", source.readyState);
-            setMessage("");
+            setMessage(""); // 연결 시 메시지 초기화
         };
 
         source.onmessage = (event) => {
@@ -155,16 +158,16 @@ const LeaderboardScreen = () => {
             if (source.readyState === EventSource.CLOSED) {
                 console.log("EventSource closed, attempting to reconnect...");
                 setEventSource(null);
-                setTimeout(createEventSource, 3000);
+                setTimeout(createEventSource, 3000); // 재연결 시도
             }
         };
     };
 
     const handleCategoryChange = (event) => {
         if (eventSource) {
-            eventSource.close();
+            eventSource.close(); // 카테고리 변경 시 기존 SSE 연결 종료
         }
-        setSelectedCategory(event.target.value);
+        setSelectedCategory(event.target.value); // 선택한 카테고리 업데이트
     };
 
     return (
