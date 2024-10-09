@@ -131,7 +131,6 @@ const ChatRoom = forwardRef(({ username }, ref) => {
         // console.log(str);
       // },
       onConnect: () => {
-        handleEnter();
 
         client.subscribe("/sub/chat", (message) => {
           const newMessage = JSON.parse(message.body);
@@ -143,6 +142,9 @@ const ChatRoom = forwardRef(({ username }, ref) => {
           const count = parseInt(messageCount.body, 10);
           setUserCnt(count);
         });
+
+        handleEnter();
+
       },
       onStompError: (frame) => {
         console.error("Broker reported error: " + frame.headers['message']);
@@ -184,13 +186,6 @@ const ChatRoom = forwardRef(({ username }, ref) => {
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [modalVisible]);
-
-  useEffect(() => {
-    // console.log(`USERS : ${userCnt}`);
-    if (userCnt === 0) {
-      handleEnter();
-    }
-  }, [userCnt]);
 
   return (
     <div className={style.container}>
