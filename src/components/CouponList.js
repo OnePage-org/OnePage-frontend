@@ -72,10 +72,13 @@ const CouponList = ({ userNameInfo }) => {
       if (error.response) {
 
         if (error.response.status === 400) {
+          console.log("400")
           setModalMessage("이벤트가 아직 시작되지 않았습니다"); // 모달 메시지 설정
         } else if (error.response.status === 410) {
+          console.log("410")
           setModalMessage("이벤트가 종료되었습니다"); // 모달 메시지 설정
         } else if (error.response.status === 406) {
+          console.log("406")
           setModalMessage(
             <>
               이벤트에 이미 참여하셨습니다<br />
@@ -83,6 +86,7 @@ const CouponList = ({ userNameInfo }) => {
             </>
           ); // 모달 메시지 설정
         } else {
+          console.log("???")
           setModalMessage("잠시 후에 다시 시도해주세요");
         }
         setShowModal(true); // 모달 표시
