@@ -206,7 +206,7 @@ const LeaderboardScreen = () => {
                                             <div key={index} className={styles.winnerCard}>
                                                 <h3>{winner.userId}</h3>
                                                 <p>축하합니다! {winner.userId} 님께서 {category} 응모에 당첨되셨습니다!</p>
-                                                <p>응모 시간: {winner.entryTime}</p>
+                                                {/* <p>응모 시간: {winner.entryTime}</p> */}
                                             </div>
                                         ))
                                     ) : (
@@ -221,7 +221,7 @@ const LeaderboardScreen = () => {
                                 <div key={index} className={styles.winnerCard}>
                                     <h3>{item.userId}</h3>
                                     <p>축하합니다! {item.userId} 님께서 {selectedCategory} 응모에 당첨되셨습니다!</p>
-                                    <p>응모 시간: {item.entryTime}</p>
+                                    {/* <p>응모 시간: {item.entryTime}</p> */}
                                 </div>
                             ))
                         ) : (
