@@ -3,6 +3,8 @@ import { API_DOMAIN } from "../../common/common";
 import { getCookie, removeCookie } from "../../common/Cookie";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useBeforeUnload } from "react-router-dom";
+
 import "./style.css";
 import logoutButton from "../../assets/images/logout.png";
 
@@ -24,6 +26,11 @@ export default function CoupongMain() {
     removeCookie("accessToken");
     navigate("/signIn");
   };
+
+  useBeforeUnload((event) => {
+    event.preventDefault();
+    removeCookie("accessToken");
+  });
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -55,6 +62,11 @@ export default function CoupongMain() {
     if (chatRoomRef.current) {
       chatRoomRef.current.handleEnter();
     }
+
+    window.addEventListener("refresh", useBeforeUnload);
+    return () => {
+      window.removeEventListener("refresh", useBeforeUnload);
+    };
   }, []);
 
   if (isLoading) {
@@ -62,13 +74,6 @@ export default function CoupongMain() {
   }
 
   return (
-    // <div>
-    //   <h1>{userData.username}</h1>
-    //   <h1>{userData.email}</h1>
-    //   <h1>{userData.type}</h1>
-    //   <h1>{userData.role}</h1>
-    //   <button onClick={logout}>로그아웃</button>
-    // </div>
     <div className="main-container">
       <div className="header">
         <p className="user-name">{userData.username} 님, 반갑습니다 !</p>
@@ -85,7 +90,7 @@ export default function CoupongMain() {
       >
         <Leaderboard />
         <CouponList userNameInfo={userData.username} />
-        <ChatRoom ref= {chatRoomRef} username={userData.username} />
+        <ChatRoom ref={chatRoomRef} username={userData.username} />
       </div>
     </div>
   );
