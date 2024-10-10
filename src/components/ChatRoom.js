@@ -1,17 +1,15 @@
 import React, { useEffect, useState, useRef, useImperativeHandle, forwardRef } from 'react';
 import SockJS from 'sockjs-client';
-import { Stomp } from "@stomp/stompjs";
-import { RiRobot2Line } from "react-icons/ri";
-import { TbMessageDots } from "react-icons/tb";
-import { RiSendPlane2Fill } from "react-icons/ri";
+import { Client } from '@stomp/stompjs';
+import { RiRobot2Line, RiSendPlane2Fill } from "react-icons/ri";
+import coupong_chat from "../assets/images/coupong_chat.svg";
+import chat from "../assets/images/chat.svg";
 import { DOMAIN } from "../common/common";
 import axios from "axios";
-import style from "../css/chatroom.module.css"
-
+import style from "../css/chatroom.module.css";
 import './style.css';
-import { getCookie } from '../common/Cookie';
 
-const ChatRoom = forwardRef (({ username }, ref ) => {
+const ChatRoom = forwardRef(({ username }, ref) => {
   const stompClient = useRef(null);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
@@ -23,18 +21,16 @@ const ChatRoom = forwardRef (({ username }, ref ) => {
   const messagesEndRef = useRef(null);
   const max_length = 200;
 
-  // 모달 닫기 함수
   const closeModal = () => {
     setModalVisible(false);
     setErrorMessage('');
   };
 
-
   useImperativeHandle(ref, () => ({
     handleExit,
+    handleEnter,
   }));
-  
-  // 메시지 전송
+
   const sendMessage = () => {
     const body = {
       writer: username,
@@ -42,23 +38,30 @@ const ChatRoom = forwardRef (({ username }, ref ) => {
       createdDate: ""
     };
 
-    if (inputMessage === null || inputMessage.trim().length === 0) {
+    if (!inputMessage || inputMessage.trim().length === 0) {
       setErrorMessage("메시지를 입력해주세요.");
       setModalVisible(true);
+      setInputMessage('');
+      setInputCnt(0);
       return;
     }
 
-    if (stompClient.current && inputMessage && inputMessage.trim().length > 0) {
+    if (stompClient.current && stompClient.current.connected && inputMessage.trim().length > 0) {
       axios.post(`${DOMAIN}/api/v1/filtering`, {
         message: body.message
       })
         .then(response => {
-          if (response.data === "fail") { /* 금칙어가 포함된 상태 */
+          if (response.data === "fail") { // 금칙어가 포함된 상태
             setErrorMessage("금칙어가 포함되어 있습니다.");
             setModalVisible(true);
+            setInputMessage('');
+            setInputCnt(0);
             return;
           }
-          stompClient.current.send("/pub/messages", {}, JSON.stringify(body));
+          stompClient.current.publish({
+            destination: "/pub/messages",
+            body: JSON.stringify(body),
+          });
           setInputMessage('');
           setInputCnt(0);
         })
@@ -68,15 +71,15 @@ const ChatRoom = forwardRef (({ username }, ref ) => {
     }
   };
 
-  const activeSend = (e) => { // Enter로 메시지 전송
+  const activeSend = (e) => {
     if (e.key === 'Enter' && e.nativeEvent.isComposing === false && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
 
-    if (e.key === 'Enter' && e.shiftKey) { // 줄바꿈 가능하도록 
+    if (e.key === 'Enter' && e.shiftKey) {
       e.preventDefault();
-      setInputMessage(inputMessage + '\n');
+      setInputMessage(prev => prev + '\n');
     }
   };
 
@@ -88,81 +91,91 @@ const ChatRoom = forwardRef (({ username }, ref ) => {
     }
   };
 
-  // 입장
   const handleEnter = () => {
-    if (stompClient.current && username) {
+    if (stompClient.current && stompClient.current.connected && username) {
       const body = {
         writer: username,
         message: "",
         createdDate: ""
       };
-      stompClient.current.send("/pub/enter", {}, JSON.stringify(body));
-    }
-  };
-
-  // 퇴장
-  const handleExit = () => {
-    const body = {
-      writer: username,
-      message: "",
-      createdDate: ""
-    };
-    stompClient.current.send("/pub/exit", {}, JSON.stringify(body));
-    disconnect();
-  };
-
-  const disconnect = () => {
-    if (stompClient.current) {
-      stompClient.current.disconnect(() => {
-        console.log("Disconnected");
+      stompClient.current.publish({
+        destination: "/pub/enter",
+        body: JSON.stringify(body),
       });
     }
   };
 
+  const handleExit = () => {
+    if (stompClient.current && stompClient.current.connected) {
+      const body = {
+        writer: username,
+        message: "",
+        createdDate: ""
+      };
+      stompClient.current.publish({
+        destination: "/pub/exit",
+        body: JSON.stringify(body),
+      });
+      stompClient.current.deactivate();
+    }
+  };
 
   useEffect(() => {
     if (!username) return;
+    const client = new Client({
+      webSocketFactory: () => new SockJS(SOCKET_DOMAIN),
+      reconnectDelay: 5000, // 자동 연결
+      heartbeatIncoming: 4000,
+      heartbeatOutgoing: 4000,
+      // debug: (str) => {
+        // console.log(str);
+      // },
+      onConnect: () => {
 
-    const socket = new SockJS(SOCKET_DOMAIN);
-    stompClient.current = Stomp.over(socket);
+        client.subscribe("/sub/chat", (message) => {
+          const newMessage = JSON.parse(message.body);
+          setMessages((prevMessages) => [...prevMessages, newMessage]);
+          // console.log("Received message:", message.body);
+        });
 
-    stompClient.current.connect({}, (frame) => {
-      console.log('Connected: ' + frame);
+        client.subscribe("/sub/users", (messageCount) => {
+          const count = parseInt(messageCount.body, 10);
+          setUserCnt(count);
+        });
 
-      stompClient.current.subscribe("/sub/chat", (message) => {
-        const newMessage = JSON.parse(message.body);
-        setMessages((prevMessages) => [...prevMessages, newMessage]);
-        console.log(message.body);
-      });
+        handleEnter();
 
-      handleEnter();
-
-      stompClient.current.subscribe("/sub/users", (messageCount) => {
-        const count = parseInt(messageCount.body);
-        setUserCnt(count);
-      });
-    }, (error) => {
-      console.error("STOMP connection error:", error);
+      },
+      onStompError: (frame) => {
+        console.error("Broker reported error: " + frame.headers['message']);
+        console.error("Additional details: " + frame.body);
+      },
+      onWebSocketError: (event) => {
+        console.error("WebSocket error:", event);
+      },
+      onDisconnect: () => {
+        console.log("Disconnected from STOMP server.");
+      },
     });
 
+    stompClient.current = client;
+    client.activate();
 
     window.addEventListener('beforeunload', handleExit);
 
     return () => {
       window.removeEventListener('beforeunload', handleExit);
-      
-      disconnect();
+      client.deactivate();
     };
   }, [username]);
-
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  useEffect(() => { // 모달창 ESC로 닫기
+  useEffect(() => {
     const handleKeyDown = (e) => {
-      if (modalVisible && (e.key === 'Escape')) {
+      if (modalVisible && e.key === 'Escape') {
         closeModal();
       }
     };
@@ -174,12 +187,11 @@ const ChatRoom = forwardRef (({ username }, ref ) => {
     };
   }, [modalVisible]);
 
-
-
-
   return (
     <div className={style.container}>
-      <div className='chat-header'>
+      <div className='chat-header-Container'>
+        <img src={chat} alt="chat icon" style={{ marginLeft: "10px" }} />
+        <img src={coupong_chat} alt="chat header" style={{ marginLeft: "10px" }} />
       </div>
       <div className='chat-container'>
         <div className='chat-messages'>
@@ -214,12 +226,13 @@ const ChatRoom = forwardRef (({ username }, ref ) => {
             maxLength={max_length}
             value={inputMessage}
             onChange={handleInputChange}
-            onKeyDown={(e) => activeSend(e)}
+            onKeyDown={activeSend}
             disabled={modalVisible}
           />
           <button
             className="chat-input-button"
             onClick={sendMessage}
+            disabled={modalVisible}
           >
             <RiSendPlane2Fill />
           </button>
@@ -235,6 +248,6 @@ const ChatRoom = forwardRef (({ username }, ref ) => {
       </div>
     </div>
   );
-}
-)
+});
+
 export default ChatRoom;
