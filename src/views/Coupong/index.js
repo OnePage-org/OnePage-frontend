@@ -27,10 +27,6 @@ export default function CoupongMain() {
     navigate("/signIn");
   };
 
-  const refreshFunc = () => {
-    navigate("/signIn");
-  };
-
   useBeforeUnload((event) => {
     event.preventDefault();
     removeCookie("accessToken");
