@@ -28,7 +28,7 @@ const CouponList = ({ userNameInfo }) => {
         } else if (data) {
           setCouponEvents([data]); // 단일 객체일 경우 배열로 변환
         } else {
-          setError("No event data available");
+          setError("진행 중인 이벤트가 없습니다");
         }
       } catch (error) {
         setError("Failed to fetch coupon event list");
@@ -65,15 +65,29 @@ const CouponList = ({ userNameInfo }) => {
         setTimeout(() => {
           setLoadingProgress(false); // 5초 후 프로그레스바 숨김
           setSuccessModal(true); // 성공 모달 표시
-        }, 5000); // 5초 동안 프로그레스바 표시
+        }, 7000); // 7초 동안 프로그레스바 표시
       }
 
     } catch (error) {
-      if (error.response && error.response.status === 400) {
-        setModalMessage("이벤트가 아직 시작되지 않았습니다."); // 모달 메시지 설정
+      if (error.response) {
+
+        if (error.response.status === 400) {
+          setModalMessage("이벤트가 아직 시작되지 않았습니다"); // 모달 메시지 설정
+        } else if (error.response.status === 410) {
+          setModalMessage("이벤트가 종료되었습니다"); // 모달 메시지 설정
+        } else if (error.response.status === 406) {
+          setModalMessage(
+            <>
+              이벤트에 이미 참여하셨습니다<br />
+              결과는 왼쪽 리더보드를 통해 확인하실 수 있습니다
+            </>
+          ); // 모달 메시지 설정
+        } else {
+          setModalMessage("잠시 후에 다시 시도해주세요");
+        }
         setShowModal(true); // 모달 표시
       } else {
-        setModalMessage("쿠폰 발급 요청에 실패했습니다.");
+        setModalMessage("쿠폰 발급 요청에 실패했습니다");
         setShowModal(true); // 실패 모달 표시
         console.error(error);
       }
@@ -111,7 +125,7 @@ const CouponList = ({ userNameInfo }) => {
 
   // 에러가 발생했을 때 표시할 UI
   if (error) {
-    return <div>Error: {error}</div>;
+    return <div><br /><br />{error}</div>;
   }
 
   // 쿠폰 이벤트가 없을 때 표시할 UI
@@ -127,7 +141,7 @@ const CouponList = ({ userNameInfo }) => {
           <div className={style.modal}>
             <div className={style.modalContent}>
               <p>쿠폰 발급 요청에 성공했습니다!</p>
-              <p>결과는 왼쪽 리더보드를 통해 확인하실 수 있습니다.</p>
+              <p>결과는 왼쪽 리더보드를 통해 확인하실 수 있습니다</p>
               <button onClick={closeSuccessModal} className={style.confirmButton}>확인</button>
             </div>
           </div>

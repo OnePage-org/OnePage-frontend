@@ -13,7 +13,7 @@ export const getCouponList = async () => {
         }); // 백엔드 API 호출
         return response.data; // 데이터 반환
     } catch (error) {
-        console.error("Failed to fetch coupon event list:", error);
+        console.error("진행중인 이벤트가 없습니다");
         throw error;
     }
 };
