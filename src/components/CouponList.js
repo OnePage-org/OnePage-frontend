@@ -7,7 +7,6 @@ import banapresso from "../assets/logos/banapresso.png"; // Coffee 카테고리 
 import dominosPizza from "../assets/logos/dominosPizza.jpg"; // Pizza 카테고리 이미지
 import bhcChicken from "../assets/logos/bhcChicken.jpeg"; // Chicken 카테고리 이미지
 import style from "../css/couponlist.module.css";
-
 const CouponList = ({ userNameInfo }) => {
   const [couponEvents, setCouponEvents] = useState([]);
   const [loading, setLoading] = useState(true); // 로딩 상태 관리
@@ -17,7 +16,6 @@ const CouponList = ({ userNameInfo }) => {
   const [loadingProgress, setLoadingProgress] = useState(false); // 프로그레스바 상태
   const [buttonDisabled, setButtonDisabled] = useState(false); // 버튼 비활성화 상태
   const [successModal, setSuccessModal] = useState(false); // 성공 모달 상태
-
   useEffect(() => {
     const fetchCouponEvents = async () => {
       try {
@@ -36,29 +34,24 @@ const CouponList = ({ userNameInfo }) => {
         setLoading(false); // 로딩 상태 해제
       }
     };
-
     fetchCouponEvents();
   }, []);
-
   const onApplyClickHandler = async (category) => {
     try {
       setButtonDisabled(true); // 버튼 비활성화
       const token = getCookie("accessToken");
       const startMs = Date.now();
-
       const requestBody = {
         id: 0, // 서버에서 유저 ID 처리
         couponCategory: category,
         attemptAt: startMs,
         username: userNameInfo,
       };
-
       const result = await axios.post(`${API_DOMAIN}/coupon-event/attempt`, requestBody, {
         headers: {
           Authorization: `${token}`,
         },
       });
-
       // 요청이 성공적으로 완료되면 5초간 프로그레스바 표시
       if (result.status === 200) {
         setLoadingProgress(true); // 프로그레스바 표시
@@ -67,10 +60,8 @@ const CouponList = ({ userNameInfo }) => {
           setSuccessModal(true); // 성공 모달 표시
         }, 5000); // 7초 동안 프로그레스바 표시
       }
-
     } catch (error) {
       if (error.response) {
-
         if (error.response.status === 400) {
           console.log("400")
           setModalMessage("이벤트가 아직 시작되지 않았습니다"); // 모달 메시지 설정
@@ -99,15 +90,12 @@ const CouponList = ({ userNameInfo }) => {
       setButtonDisabled(false); // 버튼 다시 활성화
     }
   };
-
   const closeModal = () => {
     setShowModal(false); // 모달 닫기
   };
-
   const closeSuccessModal = () => {
     setSuccessModal(false); // 성공 모달 닫기
   };
-
   // 카테고리에 맞는 이미지를 반환하는 함수
   const getImageByCategory = (category) => {
     switch (category) {
@@ -121,22 +109,34 @@ const CouponList = ({ userNameInfo }) => {
         return banapresso;
     }
   };
-
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape' || event.key === 'Enter') {
+        if (showModal) {
+          closeModal(); // 실패 모달 닫기
+        } else if (successModal) {
+          closeSuccessModal(); // 성공 모달 닫기
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    // 컴포넌트가 언마운트될 때 이벤트 리스너 제거
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [showModal, successModal, closeModal, closeSuccessModal]);
   // 로딩 중일 때 표시할 UI
   if (loading) {
     return <div>Loading coupon events...</div>;
   }
-
   // 에러가 발생했을 때 표시할 UI
   if (error) {
     return <div><br /><br />{error}</div>;
   }
-
   // 쿠폰 이벤트가 없을 때 표시할 UI
   if (!couponEvents || couponEvents.length === 0) {
     return <div>No coupon events available.</div>;
   }
-
   return (
     <div className={style.container}>
       {/* 성공 모달창 */}
@@ -151,7 +151,6 @@ const CouponList = ({ userNameInfo }) => {
           </div>
         </div>
       )}
-
       {/* 실패 또는 이벤트 시작 전 모달창 */}
       {showModal && (
         <div className={style.overlay}>
@@ -163,7 +162,6 @@ const CouponList = ({ userNameInfo }) => {
           </div>
         </div>
       )}
-
       {/* 프로그레스바 표시 */}
       {loadingProgress && (
         <div className={style.overlay}>
@@ -173,7 +171,6 @@ const CouponList = ({ userNameInfo }) => {
           </div>
         </div>
       )}
-
       {/* 쿠폰 리스트 */}
       {couponEvents.map((event, index) => (
         <div className={style.couponList} key={index}>
@@ -203,5 +200,4 @@ const CouponList = ({ userNameInfo }) => {
     </div>
   );
 };
-
 export default CouponList;
