@@ -6,23 +6,27 @@ import coupong_chat from "../assets/images/coupong_chat.svg";
 import chat from "../assets/images/chat.svg";
 import { DOMAIN } from "../common/common";
 import axios from "axios";
-import style from "../css/chatroom.module.css";
-import './style.css';
+import styles from '../css/chatroom.module.css';
+import { PiChatDuotone, PiChatSlashDuotone } from "react-icons/pi";
 
 const ChatRoom = forwardRef(({ username }, ref) => {
   const stompClient = useRef(null);
+  const [totalUser, setTotalUser] = useState([]);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [inputCnt, setInputCnt] = useState(0);
   const [userCnt, setUserCnt] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [userListVisible, setUserListVisible] = useState(false);
+
   const SOCKET_DOMAIN = `${DOMAIN}/chat`;
   const messagesEndRef = useRef(null);
   const max_length = 200;
 
   const closeModal = () => {
     setModalVisible(false);
+    setUserListVisible(false);
     setErrorMessage('');
   };
 
@@ -128,7 +132,7 @@ const ChatRoom = forwardRef(({ username }, ref) => {
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
       // debug: (str) => {
-        // console.log(str);
+      // console.log(str);
       // },
       onConnect: () => {
 
@@ -141,6 +145,11 @@ const ChatRoom = forwardRef(({ username }, ref) => {
         client.subscribe("/sub/users", (messageCount) => {
           const count = parseInt(messageCount.body, 10);
           setUserCnt(count);
+        });
+
+        client.subscribe("/sub/total", (users) => {
+          const receivedData = JSON.parse(users.body); // 사용자 목록 
+          setTotalUser(receivedData);
         });
 
         handleEnter();
@@ -175,7 +184,7 @@ const ChatRoom = forwardRef(({ username }, ref) => {
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (modalVisible && e.key === 'Escape') {
+      if ((modalVisible || userListVisible) && e.key === 'Escape') {
         closeModal();
       }
     };
@@ -185,44 +194,66 @@ const ChatRoom = forwardRef(({ username }, ref) => {
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [modalVisible]);
+  }, [modalVisible, userListVisible]);
+
+  const displayNames = () => {
+    return Object.keys(totalUser)
+      .filter((key) => totalUser[key])
+      .map((name, index) => (
+        <span key={index} className={styles.userName}>
+          {name}
+        </span>
+      ));
+  };
 
   return (
-    <div className={style.container}>
-      <div className='chat-header-Container'>
+    <div>
+      <div className={styles.chatHeaderContainer}>
         <img src={chat} alt="chat icon" style={{ marginLeft: "10px" }} />
         <img src={coupong_chat} alt="chat header" style={{ marginLeft: "10px" }} />
       </div>
-      <div className='chat-container'>
-        <div className='chat-messages'>
+      <div className={styles.chatContainer}>
+        <div className={styles.chatMessages}>
           {messages.map((item, index) => (
             <div
               key={index}
-              className={`chat-message ${item.writer === username ? 'my-message' :
-                item.writer === '알림' ? 'notify-message' : 'other-message'}`}>
-
-              <div className='message-content'>
-                <span className='message-name'>{item.writer}</span>
-                <span className='message-text'>{item.message}</span>
-                <span className='message-time'>{item.createdDate}</span>
+              className={`${styles.chatMessage} ${item.writer === username ? styles.myMessage :
+                item.writer === '입장' || item.writer === '퇴장' ? styles.notifyMessage : styles.otherMessage}`}>
+              <div className={styles.mesageContent}>
+                {item.writer !== '입장' && item.writer !== '퇴장' &&
+                  <span className={styles.messageName}>{item.writer}</span>}
+                {item.writer === '입장' &&
+                  <span className={styles.messageText}><PiChatDuotone style={{ marginRight: '3px', verticalAlign: 'middle', fontSize: '1.2em' }} />{item.message}</span>}
+                {item.writer === '퇴장' &&
+                  <span className={styles.messageText}><PiChatSlashDuotone style={{ marginRight: '3px', verticalAlign: 'middle', fontSize: '1.2em' }} />{item.message}</span>}
+                {item.writer !== '입장' && item.writer !== '퇴장' &&
+                  <span className={styles.messageText}>{item.message}</span>}
+                <span className={styles.messageTime}>{item.createdDate}</span>
               </div>
             </div>
           ))}
           <div ref={messagesEndRef} />
         </div>
 
-        <div className='info'>
-          <span className='user-count'> {userCnt}명의 참여자 </span>
-          <span className='message-length'>글자 수 : {inputCnt}/{max_length}</span>
+        <div className={styles.info}>
+          <span
+            className={styles.userCount}
+            onClick={() => setUserListVisible(true)}
+            style={{ cursor: 'pointer' }}
+          >
+            {userCnt}명의 참여자
+          </span>
+          <span className={styles.messageLength}>글자 수 : {inputCnt}/{max_length}</span>
         </div>
-        <div className="chat-input-wrapper">
-          <div style={{ display: 'flex', alignItems: 'center' }}>
+
+        <div className={styles.chatInputWrapper}>
+          <div className={styles.cleanBotNotice}>
             <RiRobot2Line style={{ marginRight: '8px' }} />
             <span>클린봇이 감지하고 있습니다</span>
           </div>
           <textarea
             placeholder='채팅을 입력하세요.'
-            className="chat-input-container"
+            className={styles.chatInputContainer}
             maxLength={max_length}
             value={inputMessage}
             onChange={handleInputChange}
@@ -230,18 +261,31 @@ const ChatRoom = forwardRef(({ username }, ref) => {
             disabled={modalVisible}
           />
           <button
-            className="chat-input-button"
+            className={styles.chatInputButton}
             onClick={sendMessage}
             disabled={modalVisible}
           >
             <RiSendPlane2Fill />
           </button>
         </div>
+
         {modalVisible && (
-          <div className="modal">
-            <div className="modal-content">
-              <span className="modal-close" onClick={closeModal}>&times;</span>
+          <div className={styles.modal}>
+            <div className={styles.modalContent}>
+              <span className={styles.modalClose} onClick={closeModal}>&times;</span>
               <p>{errorMessage}</p>
+            </div>
+          </div>
+        )}
+
+        {userListVisible && (
+          <div className={styles.modal}>
+            <div className={styles.modalContent}>
+              <span className={styles.modalClose} onClick={closeModal}>&times;</span>
+              <h3>참여자 목록</h3>
+              <div className={styles.userList}>
+                {displayNames()}
+              </div>
             </div>
           </div>
         )}
@@ -249,5 +293,4 @@ const ChatRoom = forwardRef(({ username }, ref) => {
     </div>
   );
 });
-
 export default ChatRoom;
