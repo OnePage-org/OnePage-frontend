@@ -65,7 +65,7 @@ const CouponList = ({ userNameInfo }) => {
         setTimeout(() => {
           setLoadingProgress(false); // 5초 후 프로그레스바 숨김
           setSuccessModal(true); // 성공 모달 표시
-        }, 7000); // 7초 동안 프로그레스바 표시
+        }, 5000); // 7초 동안 프로그레스바 표시
       }
 
     } catch (error) {

@@ -1,15 +1,24 @@
 import React, { useState, useEffect } from "react";
+import ConfettiExplosion from "react-confetti-explosion"; // 폭죽 효과 import
 import { DOMAIN } from "../common/common";
-import trophy from "./trophy.svg";
-import Winner from "./Winner.svg";
+import trophy from "../assets/images/trophy.svg";
+import Winner from "../assets/images/Winner.svg"
 import styles from '../css/leaderboard.module.css'; // CSS 모듈 import
+import chicken from "../assets/logos/bhcChicken.jpeg";
+import pizza from "../assets/logos/dominosPizza.jpg";
+import coffee from "../assets/logos/banapresso.png";
+import hamburger from "../assets/logos/burgerKing.png"
+import goldTrophy from "../assets/images/gold-trophy.png";
+import silverTrophy from "../assets/images/silver-trophy.png";
+import bronzeTrophy from "../assets/images/bronze-trophy.png";
 
 const LeaderboardScreen = () => {
-    const [categories, setCategories] = useState([]); 
-    const [leaderboards, setLeaderboards] = useState({}); 
+    const [categories, setCategories] = useState([]);
+    const [leaderboards, setLeaderboards] = useState({});
     const [selectedCategory, setSelectedCategory] = useState("");
     const [message, setMessage] = useState("");
     const [eventSource, setEventSource] = useState(null);
+    const [showConfetti, setShowConfetti] = useState(false); // 폭죽 효과 상태 추가
 
     // 카테고리 데이터 가져오기
     const fetchCategories = () => {
@@ -120,16 +129,26 @@ const LeaderboardScreen = () => {
                 console.warn("Received an empty message");
                 return;
             }
-
+        
             try {
                 const jsonData = JSON.parse(event.data);
                 console.log("Parsed JSON data:", jsonData);
-
+        
                 if (!jsonData || !jsonData.couponCategory || !jsonData.winners) {
                     console.warn("Invalid data received:", jsonData);
                     return;
                 }
-
+        
+                // 폭죽 효과를 위해 유저가 추가된 경우 확인
+                const currentWinners = leaderboards[jsonData.couponCategory] || [];
+                const newWinners = jsonData.winners || [];
+        
+                // 새로운 유저가 추가되었는지 확인
+                if (newWinners.length > 0 && currentWinners.length !== newWinners.length) {
+                    setShowConfetti(true); // 폭죽 효과 활성화
+                    setTimeout(() => setShowConfetti(false), 3000); // 3초 후 폭죽 효과 종료
+                }
+        
                 if (selectedCategory === "ALL") {
                     const { couponCategory, winners, entryTime } = jsonData;
                     const formattedWinners = (winners || []).map(winner => ({
@@ -151,6 +170,7 @@ const LeaderboardScreen = () => {
                 console.error("Failed to parse JSON:", error);
             }
         };
+        
 
         source.onerror = (error) => {
             console.error("EventSource failed:", error);
@@ -170,15 +190,29 @@ const LeaderboardScreen = () => {
         setSelectedCategory(event.target.value); // 선택한 카테고리 업데이트
     };
 
+    // 이미지 매핑 객체 추가
+    const categoryImages = {
+        CHICKEN: chicken,
+        HAMBURGER: hamburger,
+        COFFEE: coffee,
+        PIZZA: pizza
+    };
+
     return (
         <div className={styles.leaderboardContainer}>
+            {showConfetti && (
+                <ConfettiExplosion
+                    force={0.8} // 폭죽의 힘 조정
+                    duration={3000} // 폭죽 지속 시간
+                    particleCount={100} // 폭죽 입자 수
+                />
+            )}
             <div className={styles.titleContainer}>
                 <img src={trophy} alt="Winner Icon" className={styles.logo} />
                 <img src={Winner} alt="Winner" className={styles.logo} />
             </div>
 
             <div className={styles.formControlContainer}>
-                <label htmlFor="category-select" className={styles.label}>카테고리 선택</label>
                 <select
                     id="category-select"
                     value={selectedCategory}
@@ -199,14 +233,22 @@ const LeaderboardScreen = () => {
                     {selectedCategory === "ALL" ? (
                         Object.keys(leaderboards).map((category) => (
                             <div key={category} className={styles.categoryCard}>
-                                <h2>{category}</h2>
+                                <div className={styles.categoryHeader}>
+                                    {categoryImages[category] && (
+                                        <img src={categoryImages[category]} alt={`${category} 이미지`} className={styles.categoryImage} />
+                                    )}
+                                    <h2>{category}</h2>
+                                </div>
                                 <div className={styles.cardsContainer}>
                                     {(leaderboards[category] || []).length > 0 ? (
                                         leaderboards[category].map((winner, index) => (
                                             <div key={index} className={styles.winnerCard}>
-                                                <h3>{winner.userId}</h3>
-                                                <p>축하합니다! {winner.userId} 님께서 {category} 응모에 당첨되셨습니다!</p>
-                                                {/* <p>응모 시간: {winner.entryTime}</p> */}
+                                                <h3>
+                                                    {index === 0 && <img src={goldTrophy} alt="Gold Trophy" className={styles.trophyIcon} />}
+                                                    {index === 1 && <img src={silverTrophy} alt="Silver Trophy" className={styles.trophyIcon} />}
+                                                    {index === 2 && <img src={bronzeTrophy} alt="Bronze Trophy" className={styles.trophyIcon} />}
+                                                    {winner.userId} 님
+                                                </h3>
                                             </div>
                                         ))
                                     ) : (
@@ -216,17 +258,30 @@ const LeaderboardScreen = () => {
                             </div>
                         ))
                     ) : (
-                        leaderboards[selectedCategory]?.length > 0 ? (
-                            leaderboards[selectedCategory].map((item, index) => (
-                                <div key={index} className={styles.winnerCard}>
-                                    <h3>{item.userId}</h3>
-                                    <p>축하합니다! {item.userId} 님께서 {selectedCategory} 응모에 당첨되셨습니다!</p>
-                                    {/* <p>응모 시간: {item.entryTime}</p> */}
-                                </div>
-                            ))
-                        ) : (
-                            <div className={styles.winnerCard}>아직 당첨자가 없습니다.</div>
-                        )
+                        <div className={styles.categoryCard}>
+                            <div className={styles.categoryHeader}>
+                                {categoryImages[selectedCategory] && (
+                                    <img src={categoryImages[selectedCategory]} alt={`${selectedCategory} 이미지`} className={styles.categoryImage} />
+                                )}
+                                <h2>{selectedCategory}</h2>
+                            </div>
+                            <div className={styles.cardsContainer}>
+                                {leaderboards[selectedCategory]?.length > 0 ? (
+                                    leaderboards[selectedCategory].map((item, index) => (
+                                        <div key={index} className={styles.winnerCard}>
+                                            <h3>
+                                                {index === 0 && <img src={goldTrophy} alt="Gold Trophy" className={styles.trophyIcon} />}
+                                                {index === 1 && <img src={silverTrophy} alt="Silver Trophy" className={styles.trophyIcon} />}
+                                                {index === 2 && <img src={bronzeTrophy} alt="Bronze Trophy" className={styles.trophyIcon} />}
+                                                {item.userId} 님
+                                            </h3>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className={styles.winnerCard}>아직 당첨자가 없습니다.</div>
+                                )}
+                            </div>
+                        </div>
                     )}
                 </div>
                 {message && (
@@ -237,6 +292,7 @@ const LeaderboardScreen = () => {
             </div>
         </div>
     );
+
 };
 
 export default LeaderboardScreen;

@@ -49,8 +49,14 @@
     max-width: 200px; /* 최대 너비 설정 */
     appearance: none; /* 기본 셀렉트 화살표 제거 */
     background-color: #ffffff; /* 배경색 */
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="gray"><path d="M10 12l-6-6h12l-6 6z"/></svg>'); /* 화살표 아이콘 */
+    background-repeat: no-repeat;
+    background-position: right 10px center; /* 화살표 위치 */
+    background-size: 20px; /* 화살표 크기 */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
     transition: border-color 0.3s; /* 테두리 색상 변화 애니메이션 */
+    text-align: center; /* 텍스트 가운데 정렬 */
+    position: relative; /* 화살표 아이콘 위치를 조정하기 위해 */
 }
 
 .select:hover {
@@ -78,6 +84,7 @@
     flex-direction: column; /* 세로 방향 정렬 */
     justify-content: center; /* 수직 중앙 정렬 */
     align-items: center; /* 수평 중앙 정렬 */
+    text-align: center;
 }
 
 /* 마우스 오버 시 변형 효과 */
@@ -99,13 +106,22 @@
     padding: 8px;
     margin-bottom: 10px;
     display: flex;
-    flex-direction: column;
+    justify-content: center; /* 수평 중앙 정렬 */
+    align-items: center; /* 수직 중앙 정렬 */
+    flex-direction: column; /* 세로 방향 정렬 */
     width: 90%; /* 기본 너비 */
     min-width: 200px; /* 최소 너비 설정 */
     line-height: 1.2; /* 줄 간격을 줄여서 간결하게 */
     border: 1px solid #d9d9d9; /* 테두리 추가 */
     transition: background-color 0.2s, box-shadow 0.2s; /* 애니메이션 효과 */
+    text-align: center; /* 텍스트 중앙 정렬 */
 }
+
+/* h3 요소에 색상 추가 */
+.winnerCard h3 {
+    color: #367FEE; /* 파란색으로 설정 */
+}
+
 
 
 /* 마우스 오버 시 스타일 변경 */
@@ -124,3 +140,25 @@
 .logo {
     margin-left: 10px;
 }
+
+.categoryHeader {
+    display: flex;
+    align-items: center; /* 수직 중앙 정렬 */
+    justify-content: center; /* 수평 중앙 정렬 */
+    width: 100%; /* 너비를 100%로 설정 */
+    margin-bottom: 10px; /* 제목과 카드 간의 여백 */
+}
+
+.categoryImage {
+    width: 50px; /* 원하는 크기로 조정 */
+    height: auto; /* 비율 유지 */
+    margin-right: 10px; /* 이미지와 제목 간의 간격 */
+}
+
+.trophyIcon {
+    width: 10%; /* 원하는 크기로 조정 */
+    height: auto; /* 비율 유지 */
+    margin-right: 5px; /* 오른쪽 여백 추가 */
+    vertical-align: middle; /* 텍스트와 수직 정렬 */
+}
+
