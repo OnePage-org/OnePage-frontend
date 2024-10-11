@@ -270,7 +270,7 @@ export default function SignUp() {
         <div className="sign-up-box">
           <div className="sign-up-title">{"coupong"}</div>
           <div className="sign-up-content-box">
-            <div className="sign-up-content-sns-sign-in-box">
+            {/* <div className="sign-up-content-sns-sign-in-box">
               <div className="sign-up-content-sns-sign-in-title">
                 {"SNS 회원가입"}
               </div>
@@ -284,13 +284,13 @@ export default function SignUp() {
                   onClick={() => onSnsSignInButtonClickHandler("naver")}
                 ></div>
               </div>
-            </div>
+            </div> */}
             <div className="sign-up-content-divider"></div>
             <div className="sign-up-content-input-box">
               <InputBox
                 ref={idRef}
-                title="아이디"
-                placeholder="아이디를 입력해주세요"
+                title="닉네임"
+                placeholder="닉네임을 입력해주세요"
                 type="text"
                 value={username}
                 onChange={onIdChangeHandler}
