@@ -129,26 +129,26 @@ const LeaderboardScreen = () => {
                 console.warn("Received an empty message");
                 return;
             }
-        
+
             try {
                 const jsonData = JSON.parse(event.data);
                 console.log("Parsed JSON data:", jsonData);
-        
+
                 if (!jsonData || !jsonData.couponCategory || !jsonData.winners) {
                     console.warn("Invalid data received:", jsonData);
                     return;
                 }
-        
+
                 // 폭죽 효과를 위해 유저가 추가된 경우 확인
                 const currentWinners = leaderboards[jsonData.couponCategory] || [];
                 const newWinners = jsonData.winners || [];
-        
+
                 // 새로운 유저가 추가되었는지 확인
                 if (newWinners.length > 0 && currentWinners.length !== newWinners.length) {
                     setShowConfetti(true); // 폭죽 효과 활성화
                     setTimeout(() => setShowConfetti(false), 3000); // 3초 후 폭죽 효과 종료
                 }
-        
+
                 if (selectedCategory === "ALL") {
                     const { couponCategory, winners, entryTime } = jsonData;
                     const formattedWinners = (winners || []).map(winner => ({
@@ -170,7 +170,7 @@ const LeaderboardScreen = () => {
                 console.error("Failed to parse JSON:", error);
             }
         };
-        
+
 
         source.onerror = (error) => {
             console.error("EventSource failed:", error);
@@ -213,7 +213,7 @@ const LeaderboardScreen = () => {
             </div>
 
             <div className={styles.formControlContainer}>
-                <select
+                {/* <select
                     id="category-select"
                     value={selectedCategory}
                     onChange={handleCategoryChange}
@@ -225,7 +225,7 @@ const LeaderboardScreen = () => {
                             {category}
                         </option>
                     ))}
-                </select>
+                </select> */}
             </div>
 
             <div className={styles.scrollContainer}>
