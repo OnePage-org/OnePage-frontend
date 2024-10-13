@@ -1,16 +1,11 @@
-<a href="https://club-project-one.vercel.app/" target="_blank">
-<img width="1448" alt="coupong 메인 페이지@2x" src="https://github.com/user-attachments/assets/d797ff95-42d9-43a7-9301-7f41786aaf76">
-</a>
 
-<br/>
-<br/>
 
 # 0. Getting Started (시작하기)
 ```bash
 $ ./gradlew clean build -x test 
 $ docker compose up --build -d
 ```
-[서비스 링크](https://coupong.netlify.app/)
+---->   [서비스 링크](https://coupong.netlify.app/)   <----
 
 <br/>
 <br/>
