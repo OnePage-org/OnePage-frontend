@@ -141,11 +141,11 @@ test
 ## 브랜치 전략 (Branch Strategy)
 우리의 브랜치 전략은 Git Flow를 기반으로 하며, 다음과 같은 브랜치를 사용합니다.
 
-- Main Branch
+- main
   - 배포 가능한 상태의 코드를 유지합니다.
   - 모든 배포는 이 브랜치에서 이루어집니다.
   
-- {name} Branch
+- develop/{feature/release/refactoring...}
   - 팀원 각자의 개발 브랜치입니다.
   - 모든 기능 개발은 이 브랜치에서 이루어집니다.
 
@@ -167,11 +167,11 @@ test
 <img src="https://github.com/user-attachments/assets/8e286e17-370a-4f67-b3cc-0e4ae29ed673" alt="React" width="300"> <br/><br/>
 
 # 12. 쿠폰 이벤트 시스템 프로세스
-<img src="https://github.com/user-attachments/assets/02529262-ea24-4386-bd41-639561d156ce" alt="React" width="500"> <br/><br/>
+<img src="https://github.com/user-attachments/assets/4a5bf147-cd63-4eb0-97c6-f8fcffd91fa2" alt="React" width="500"> <br/><br/>
 
 # 13. 금칙어 필터링 시스템 프로세스
-<img src="https://github.com/user-attachments/assets/c9997e16-e455-4d31-8c9d-53ac4178406d" alt="React" width="500"> 
-<img src="https://github.com/user-attachments/assets/3daf3f6d-4248-46b3-915e-f0d4e895b1fb" alt="React" width="500"> 
+<img src="https://github.com/user-attachments/assets/8df53e98-8da1-46fe-8830-e8914b587fb6" alt="React" width="500"> 
+<img src="https://github.com/user-attachments/assets/187da3cf-ffdc-47ed-beb5-1211146bfa4f" alt="React" width="500"> 
 
 
 
