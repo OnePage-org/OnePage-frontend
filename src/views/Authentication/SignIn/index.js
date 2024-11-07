@@ -61,7 +61,7 @@ export default function SignUp() {
   const signInResponse = (responseBody) => {
     if (!responseBody) return;
     const { code } = responseBody;
-    console.log(code);
+    // console.log(code);
 
     if (code === ResponseCode.SIGN_IN_FAIL) {
       setPasswordError(true);

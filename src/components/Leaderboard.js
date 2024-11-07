@@ -111,7 +111,7 @@ const LeaderboardScreen = () => {
         return () => {
             if (eventSource) {
                 eventSource.close(); // 컴포넌트 언마운트 시 SSE 연결 종료
-                console.log("EventSource closed");
+                // console.log("EventSource closed");
             }
         };
     }, [selectedCategory]);
@@ -119,16 +119,16 @@ const LeaderboardScreen = () => {
     // SSE 연결 생성
     const createEventSource = () => {
         const source = new EventSource(`${DOMAIN}/sse/leaderboard/stream?couponCategory=${selectedCategory}`, { withCredentials: true });
-        console.log("EventSource created:", source);
+        // console.log("EventSource created:", source);
         setEventSource(source);
 
         source.onopen = () => {
-            console.log("EventSource connection opened, readyState:", source.readyState);
+            // console.log("EventSource connection opened, readyState:", source.readyState);
             setMessage(""); // 연결 시 메시지 초기화
         };
 
         source.onmessage = (event) => {
-            console.log("Received message:", event.data);
+            // console.log("Received message:", event.data);
             if (event.data.trim() === '') {
                 console.warn("Received an empty message");
                 return;
@@ -136,7 +136,7 @@ const LeaderboardScreen = () => {
         
             try {
                 const jsonData = JSON.parse(event.data);
-                console.log("Parsed JSON data:", jsonData);
+                // console.log("Parsed JSON data:", jsonData);
         
                 if (!jsonData || !jsonData.couponCategory || !jsonData.winners) {
                     console.warn("Invalid data received:", jsonData);
@@ -180,7 +180,7 @@ const LeaderboardScreen = () => {
             console.error("EventSource failed:", error);
             setMessage("리더보드 업데이트를 받을 수 없습니다.");
             if (source.readyState === EventSource.CLOSED) {
-                console.log("EventSource closed, attempting to reconnect...");
+                // console.log("EventSource closed, attempting to reconnect...");
                 setEventSource(null);
                 setTimeout(createEventSource, 3000); // 재연결 시도
             }

@@ -20,7 +20,7 @@ const CouponList = ({ userNameInfo }) => {
     const fetchCouponEvents = async () => {
       try {
         const data = await getCouponList(); // API 호출
-        console.log(data);
+        // console.log(data);
         if (Array.isArray(data)) {
           setCouponEvents(data);
         } else if (data) {
@@ -63,13 +63,13 @@ const CouponList = ({ userNameInfo }) => {
     } catch (error) {
       if (error.response) {
         if (error.response.status === 400) {
-          console.log("400")
+          // console.log("400")
           setModalMessage("이벤트가 아직 시작되지 않았습니다"); // 모달 메시지 설정
         } else if (error.response.status === 410) {
-          console.log("410")
+          // console.log("410")
           setModalMessage("이벤트가 종료되었습니다"); // 모달 메시지 설정
         } else if (error.response.status === 406) {
-          console.log("406")
+          // console.log("406")
           setModalMessage(
             <>
               이벤트에 이미 참여하셨습니다<br />
@@ -77,7 +77,7 @@ const CouponList = ({ userNameInfo }) => {
             </>
           ); // 모달 메시지 설정
         } else {
-          console.log("???")
+          // console.log("???")
           setModalMessage("잠시 후에 다시 시도해주세요");
         }
         setShowModal(true); // 모달 표시
@@ -109,22 +109,25 @@ const CouponList = ({ userNameInfo }) => {
         return banapresso;
     }
   };
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      if (event.key === 'Escape' || event.key === 'Enter') {
-        if (showModal) {
-          closeModal(); // 실패 모달 닫기
-        } else if (successModal) {
-          closeSuccessModal(); // 성공 모달 닫기
-        }
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    // 컴포넌트가 언마운트될 때 이벤트 리스너 제거
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [showModal, successModal, closeModal, closeSuccessModal]);
+  
+  /** ESC / Enter 버튼 */
+  // useEffect(() => {
+  //   const handleKeyDown = (event) => {
+  //     if (event.key === 'Escape' || event.key === 'Enter') {
+  //       if (showModal) {
+  //         closeModal(); // 실패 모달 닫기
+  //       } else if (successModal) {
+  //         closeSuccessModal(); // 성공 모달 닫기
+  //       }
+  //     }
+  //   };
+  //   window.addEventListener('keydown', handleKeyDown);
+  //   // 컴포넌트가 언마운트될 때 이벤트 리스너 제거
+  //   return () => {
+  //     window.removeEventListener('keydown', handleKeyDown);
+  //   };
+  // }, [showModal, successModal, closeModal, closeSuccessModal]);
+
   // 로딩 중일 때 표시할 UI
   if (loading) {
     return <div>Loading coupon events...</div>;
