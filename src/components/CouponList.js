@@ -109,22 +109,25 @@ const CouponList = ({ userNameInfo }) => {
         return banapresso;
     }
   };
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      if (event.key === 'Escape' || event.key === 'Enter') {
-        if (showModal) {
-          closeModal(); // 실패 모달 닫기
-        } else if (successModal) {
-          closeSuccessModal(); // 성공 모달 닫기
-        }
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    // 컴포넌트가 언마운트될 때 이벤트 리스너 제거
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [showModal, successModal, closeModal, closeSuccessModal]);
+  
+  /** ESC / Enter 버튼 */
+  // useEffect(() => {
+  //   const handleKeyDown = (event) => {
+  //     if (event.key === 'Escape' || event.key === 'Enter') {
+  //       if (showModal) {
+  //         closeModal(); // 실패 모달 닫기
+  //       } else if (successModal) {
+  //         closeSuccessModal(); // 성공 모달 닫기
+  //       }
+  //     }
+  //   };
+  //   window.addEventListener('keydown', handleKeyDown);
+  //   // 컴포넌트가 언마운트될 때 이벤트 리스너 제거
+  //   return () => {
+  //     window.removeEventListener('keydown', handleKeyDown);
+  //   };
+  // }, [showModal, successModal, closeModal, closeSuccessModal]);
+
   // 로딩 중일 때 표시할 UI
   if (loading) {
     return <div>Loading coupon events...</div>;
