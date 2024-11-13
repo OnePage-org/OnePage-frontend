@@ -7,6 +7,11 @@ import banapresso from "../assets/logos/banapresso.png"; // Coffee 카테고리 
 import dominosPizza from "../assets/logos/dominosPizza.jpg"; // Pizza 카테고리 이미지
 import bhcChicken from "../assets/logos/bhcChicken.jpeg"; // Chicken 카테고리 이미지
 import style from "../css/couponlist.module.css";
+import npay from '../assets/logos/naver_pay.png';
+import starbucks from '../assets/logos/starbucks.png';
+import manager from '../assets/logos/manager.jpeg';
+import clap from "../assets/logos/clap.png";
+
 const CouponList = ({ userNameInfo }) => {
   const [couponEvents, setCouponEvents] = useState([]);
   const [loading, setLoading] = useState(true); // 로딩 상태 관리
@@ -100,13 +105,18 @@ const CouponList = ({ userNameInfo }) => {
   const getImageByCategory = (category) => {
     switch (category) {
       case "PIZZA":
-        return dominosPizza;
+        // return dominosPizza;
+        return clap;
       case "COFFEE":
-        return banapresso;
-      case "CHICKEN":
-        return bhcChicken;
+        return starbucks;
+      // case "CHICKEN":
+        // return bhcChicken;
+      case "NAVER_POINT_TWO" :
+        return npay;
+        case "NAVER_POINT_ONE" :
+          return npay;
       default:
-        return banapresso;
+        return manager;
     }
   };
   
@@ -141,6 +151,7 @@ const CouponList = ({ userNameInfo }) => {
     return <div>No coupon events available.</div>;
   }
   return (
+    <div className={style.scrollContainer}>
     <div className={style.container}>
       {/* 성공 모달창 */}
       {successModal && (
@@ -185,7 +196,10 @@ const CouponList = ({ userNameInfo }) => {
             />
             <div>
               <p className={style.eventName}>{event.eventName}</p>
-              <p className={style.eventCategory}>{event.eventCategory}</p>
+              <p className={style.eventCategory}>{event.eventCategory === 'DEFAULT' ? "DATE" :
+                                                    event.eventCategory === "NAVER_POINT_ONE" ? "NAVER POINT 10000":
+                                                    event.eventCategory === "NAVER_POINT_TWO" ? "NAVER POINT 20000"
+                                                    : event.eventCategory}</p>
               <p className={style.startTime}>
                 {new Date(event.startTime).toLocaleString()}
               </p>
@@ -200,6 +214,7 @@ const CouponList = ({ userNameInfo }) => {
           </button>
         </div>
       ))}
+    </div>
     </div>
   );
 };

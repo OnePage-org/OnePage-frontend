@@ -11,6 +11,10 @@ import hamburger from "../assets/logos/burgerKing.png"
 import goldTrophy from "../assets/images/gold-trophy.png";
 import silverTrophy from "../assets/images/silver-trophy.png";
 import bronzeTrophy from "../assets/images/bronze-trophy.png";
+import npay from '../assets/logos/naver_pay.png';
+import starbucks from '../assets/logos/starbucks.png';
+import manager from '../assets/logos/manager.jpeg';
+import clap from "../assets/logos/clap.png";
 
 const LeaderboardScreen = () => {
     const [categories, setCategories] = useState([]);
@@ -87,7 +91,7 @@ const LeaderboardScreen = () => {
                     })) || [];
 
                     winnersArray.sort((a, b) => b.score - a.score);
-                    
+
                     setLeaderboards({ [selectedCategory]: winnersArray }); // 특정 카테고리 리더보드 업데이트
                 })
                 .catch(error => {
@@ -133,26 +137,26 @@ const LeaderboardScreen = () => {
                 console.warn("Received an empty message");
                 return;
             }
-        
+
             try {
                 const jsonData = JSON.parse(event.data);
                 // console.log("Parsed JSON data:", jsonData);
-        
+
                 if (!jsonData || !jsonData.couponCategory || !jsonData.winners) {
                     console.warn("Invalid data received:", jsonData);
                     return;
                 }
-        
+
                 // 폭죽 효과를 위해 유저가 추가된 경우 확인
                 const currentWinners = leaderboards[jsonData.couponCategory] || [];
                 const newWinners = jsonData.winners || [];
-        
+
                 // 새로운 유저가 추가되었는지 확인
                 if (newWinners.length > 0 && currentWinners.length !== newWinners.length) {
                     setShowConfetti(true); // 폭죽 효과 활성화
                     setTimeout(() => setShowConfetti(false), 3000); // 3초 후 폭죽 효과 종료
                 }
-        
+
                 if (selectedCategory === "ALL") {
                     const { couponCategory, winners, entryTime } = jsonData;
                     const formattedWinners = (winners || []).map(winner => ({
@@ -174,7 +178,7 @@ const LeaderboardScreen = () => {
                 console.error("Failed to parse JSON:", error);
             }
         };
-        
+
 
         source.onerror = (error) => {
             console.error("EventSource failed:", error);
@@ -198,8 +202,14 @@ const LeaderboardScreen = () => {
     const categoryImages = {
         CHICKEN: chicken,
         HAMBURGER: hamburger,
-        COFFEE: coffee,
-        PIZZA: pizza
+        // COFFEE: coffee,
+        COFFEE: starbucks,
+        // PIZZA: pizza,
+        PIZZA: clap,
+        NAVER_POINT_TWO: npay,
+        NAVER_POINT_ONE: npay,
+        COFFEE: starbucks,
+        DEFAULT: manager,
     };
 
     return (
@@ -241,7 +251,18 @@ const LeaderboardScreen = () => {
                                     {categoryImages[category] && (
                                         <img src={categoryImages[category]} alt={`${category} 이미지`} className={styles.categoryImage} />
                                     )}
-                                    <h2>{category}</h2>
+
+                                    <h2>  {category === "PIZZA" ? "열렬한 박수" :
+                                        category === "NAVER_POINT_TWO" ? "네이버 페이 2만원권" :
+                                            category === "NAVER_POINT_ONE" ? "네이버 페이 1만원권" :
+                                                category === "COFFEE" ? "스타벅스 아메리카노" :
+                                                    category === "DEFAULT" ?
+                                                        <>
+                                                            김강산 매니저님과 <br /> 식사권
+                                                        </>
+                                                        :
+                                                        category}</h2>
+
                                 </div>
                                 <div className={styles.cardsContainer}>
                                     {(leaderboards[category] || []).length > 0 ? (
