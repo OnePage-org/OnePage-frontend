@@ -90,7 +90,7 @@ const LeaderboardScreen = () => {
                         score: score
                     })) || [];
 
-                    winnersArray.sort((a, b) => b.score - a.score);
+                    // winnersArray.sort((a, b) => b.score - a.score);
 
                     setLeaderboards({ [selectedCategory]: winnersArray }); // 특정 카테고리 리더보드 업데이트
                 })
